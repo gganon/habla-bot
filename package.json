@@ -12,8 +12,10 @@
   "author": "GGanon",
   "license": "UNLICENSE",
   "dependencies": {
+    "axios": "^0.21.1",
     "discord.js": "^12.5.1",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "iso-639-1": "^2.1.7"
   },
   "devDependencies": {
     "eslint": "^7.18.0",
