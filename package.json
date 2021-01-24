@@ -15,7 +15,8 @@
     "axios": "^0.21.1",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
-    "iso-639-1": "^2.1.7"
+    "iso-639-1": "^2.1.7",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "eslint": "^7.18.0",
