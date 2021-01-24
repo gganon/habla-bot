@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A discord bot that can translate text and messages between languages using Google's Cloud Translation API",
   "main": "src/index.js",
-  "type": "module",
   "scripts": {
     "start:dev": "nodemon --watch .env --watch src src/",
     "lint": "eslint src/**/*.js",
