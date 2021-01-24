@@ -7,7 +7,7 @@ const GOOGLE_TRANSLATION_API_BASE_URL =
 
 class GoogleTranslator {
   constructor(options) {
-    this.defaultLanguage = options?.defaultLanguage || 'en';
+    this.defaultLanguage = options?.defaultLanguage || config.defaultLanguage;
     this.apiKey = config.googleTranslationApiKey;
   }
 
