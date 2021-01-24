@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start:dev": "nodemon --watch .env --watch src src/"
+    "start:dev": "nodemon --watch .env --watch src src/",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint --fix src/**/*.js"
   },
   "author": "GGanon",
   "license": "UNLICENSE",
