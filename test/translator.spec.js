@@ -7,6 +7,7 @@ jest.mock('axios');
 jest.mock('../src/config', () => {
   return {
     googleTranslationApiKey: 'fake_key',
+    defaultLanguage: 'en',
   };
 });
 
