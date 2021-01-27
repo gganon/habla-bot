@@ -6,7 +6,7 @@
   "scripts": {
     "start:dev": "nodemon --watch .env --watch src src/",
     "lint": "eslint src/**/*.js test/**/*.js",
-    "lint:fix": "eslint --fix src/**/*.js test/**/*.js",
+    "lint:fix": "eslint --fix src/**/*.js test/**/*.js --max-warnings 5",
     "test": "jest --config jest.json"
   },
   "author": "GGanon",
@@ -35,7 +35,7 @@
     }
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix",
+    "*.js": "npm run lint:fix",
     "*.{js,css,md}": "prettier --write"
   }
 }
