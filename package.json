@@ -7,7 +7,8 @@
     "start:dev": "nodemon --watch .env --watch src src/",
     "lint": "eslint src/**/*.js test/**/*.js",
     "lint:fix": "eslint --fix src/**/*.js test/**/*.js --max-warnings 5",
-    "test": "jest --config jest.json"
+    "test": "jest --config jest.json",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --config jest.json"
   },
   "author": "GGanon",
   "license": "UNLICENSE",
