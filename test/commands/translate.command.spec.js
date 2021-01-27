@@ -1,0 +1,164 @@
+const { matches, handler } = require('../../src/commands/translate.command');
+const { sendTranslation } = require('../../src/message');
+const translator = require('../../src/translator');
+
+jest.mock('../../src/message');
+jest.mock('../../src/translator.js');
+
+const MOCK_CHANNEL = { id: '8675309' };
+
+const mockMessage = (content, reference) => {
+  return {
+    channel: MOCK_CHANNEL,
+    content,
+    reference,
+  };
+};
+
+describe('Translation Command', () => {
+  describe('should identify translation request messages', () => {
+    it('without languages', () => {
+      const match = matches(mockMessage('!h pls translate this'));
+      expect(match).toEqual(true);
+    });
+
+    it('with "to" language specified', () => {
+      const match = matches(mockMessage('!h fr pls translate this'));
+      expect(match).toEqual(true);
+    });
+
+    it('with "to" and "from" languages specified', () => {
+      const match = matches(mockMessage('!h en fr pls translate this'));
+      expect(match).toEqual(true);
+    });
+
+    it('incorrect usage: missing arguments', () => {
+      const match = matches(mockMessage('!h'));
+      expect(match).toEqual(false);
+    });
+
+    it('should translate multiline text', () => {
+      const match = matches(
+        mockMessage('!h en fr\npls translate this\nand this\nand this')
+      );
+      expect(match).toEqual(true);
+    });
+
+    it('reply translation request', () => {
+      const match = matches(mockMessage('!h', {}));
+      expect(match).toEqual(true);
+    });
+
+    it('reply request with "to" language specified', () => {
+      const match = matches(mockMessage('!h en', {}));
+      expect(match).toEqual(true);
+    });
+
+    it('reply request with "from" and "to" languages specified', () => {
+      const match = matches(mockMessage('!h en fr', {}));
+      expect(match).toEqual(true);
+    });
+
+    it('should accept long prefix as well', () => {
+      const match = matches(mockMessage('!habla en fr'));
+      expect(match).toEqual(true);
+    });
+
+    it('should accept long prefix for reply', () => {
+      const match = matches(mockMessage('!habla en fr', {}));
+      expect(match).toEqual(true);
+    });
+  });
+
+  it('should translate text to default language', async () => {
+    const mockResult = { from: 'French', to: 'English', translation: 'Hi' };
+    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
+      mockResult
+    );
+
+    await handler(mockMessage('!h Bonjour'));
+
+    expect(sendTranslation.mock.calls).toHaveLength(1);
+    expect(sendTranslation.mock.calls).toEqual([
+      [
+        MOCK_CHANNEL,
+        mockResult.from,
+        'Bonjour',
+        mockResult.to,
+        mockResult.translation,
+      ],
+    ]);
+    expect(translateSpy.mock.calls).toEqual([['Bonjour', {}]]);
+  });
+
+  it('should translate text to specified language', async () => {
+    const mockResult = { from: 'French', to: 'English', translation: 'Hi' };
+    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
+      mockResult
+    );
+
+    await handler(mockMessage('!h en Bonjour'));
+
+    expect(sendTranslation.mock.calls).toHaveLength(1);
+    expect(sendTranslation.mock.calls).toEqual([
+      [
+        MOCK_CHANNEL,
+        mockResult.from,
+        'Bonjour',
+        mockResult.to,
+        mockResult.translation,
+      ],
+    ]);
+    expect(translateSpy.mock.calls).toEqual([['Bonjour', { to: 'en' }]]);
+  });
+
+  it('should translate text from specified language to specified language', async () => {
+    const mockResult = { from: 'French', to: 'English', translation: 'Hi' };
+    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
+      mockResult
+    );
+
+    await handler(mockMessage('!h fr en Bonjour'));
+
+    expect(sendTranslation.mock.calls).toHaveLength(1);
+    expect(sendTranslation.mock.calls).toEqual([
+      [
+        MOCK_CHANNEL,
+        mockResult.from,
+        'Bonjour',
+        mockResult.to,
+        mockResult.translation,
+      ],
+    ]);
+    expect(translateSpy.mock.calls).toEqual([
+      ['Bonjour', { from: 'fr', to: 'en' }],
+    ]);
+  });
+
+  it('should translate multiline text', async () => {
+    const mockResult = {
+      from: 'French',
+      to: 'English',
+      translation: 'Hi\nHi\nHi',
+    };
+    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
+      mockResult
+    );
+
+    await handler(mockMessage('!h\nBonjour\nBonjour\nBonjour'));
+
+    expect(sendTranslation.mock.calls).toHaveLength(1);
+    expect(sendTranslation.mock.calls).toEqual([
+      [
+        MOCK_CHANNEL,
+        mockResult.from,
+        'Bonjour\nBonjour\nBonjour',
+        mockResult.to,
+        mockResult.translation,
+      ],
+    ]);
+    expect(translateSpy.mock.calls).toEqual([
+      ['Bonjour\nBonjour\nBonjour', {}],
+    ]);
+  });
+});
