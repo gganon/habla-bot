@@ -15,6 +15,33 @@ const mockMessage = (content, reference) => {
   };
 };
 
+const translateTestCase = async (
+  message,
+  mockResult,
+  expectedText,
+  expectedTranslationOptions
+) => {
+  const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
+    mockResult
+  );
+
+  await handler(message);
+
+  expect(sendTranslation.mock.calls).toHaveLength(1);
+  expect(sendTranslation.mock.calls).toEqual([
+    [
+      MOCK_CHANNEL,
+      mockResult.from,
+      expectedText,
+      mockResult.to,
+      mockResult.translation,
+    ],
+  ]);
+  expect(translateSpy.mock.calls).toEqual([
+    [expectedText, expectedTranslationOptions],
+  ]);
+};
+
 describe('Translation Command', () => {
   describe('should identify translation request messages', () => {
     it('without languages', () => {
@@ -71,94 +98,42 @@ describe('Translation Command', () => {
   });
 
   it('should translate text to default language', async () => {
-    const mockResult = { from: 'French', to: 'English', translation: 'Hi' };
-    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
-      mockResult
+    await translateTestCase(
+      mockMessage('!h Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      {}
     );
-
-    await handler(mockMessage('!h Bonjour'));
-
-    expect(sendTranslation.mock.calls).toHaveLength(1);
-    expect(sendTranslation.mock.calls).toEqual([
-      [
-        MOCK_CHANNEL,
-        mockResult.from,
-        'Bonjour',
-        mockResult.to,
-        mockResult.translation,
-      ],
-    ]);
-    expect(translateSpy.mock.calls).toEqual([['Bonjour', {}]]);
   });
 
   it('should translate text to specified language', async () => {
-    const mockResult = { from: 'French', to: 'English', translation: 'Hi' };
-    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
-      mockResult
+    await translateTestCase(
+      mockMessage('!h en Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      { to: 'en' }
     );
-
-    await handler(mockMessage('!h en Bonjour'));
-
-    expect(sendTranslation.mock.calls).toHaveLength(1);
-    expect(sendTranslation.mock.calls).toEqual([
-      [
-        MOCK_CHANNEL,
-        mockResult.from,
-        'Bonjour',
-        mockResult.to,
-        mockResult.translation,
-      ],
-    ]);
-    expect(translateSpy.mock.calls).toEqual([['Bonjour', { to: 'en' }]]);
   });
 
   it('should translate text from specified language to specified language', async () => {
-    const mockResult = { from: 'French', to: 'English', translation: 'Hi' };
-    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
-      mockResult
+    await translateTestCase(
+      mockMessage('!h fr en Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      { from: 'fr', to: 'en' }
     );
-
-    await handler(mockMessage('!h fr en Bonjour'));
-
-    expect(sendTranslation.mock.calls).toHaveLength(1);
-    expect(sendTranslation.mock.calls).toEqual([
-      [
-        MOCK_CHANNEL,
-        mockResult.from,
-        'Bonjour',
-        mockResult.to,
-        mockResult.translation,
-      ],
-    ]);
-    expect(translateSpy.mock.calls).toEqual([
-      ['Bonjour', { from: 'fr', to: 'en' }],
-    ]);
   });
 
   it('should translate multiline text', async () => {
-    const mockResult = {
-      from: 'French',
-      to: 'English',
-      translation: 'Hi\nHi\nHi',
-    };
-    const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
-      mockResult
+    await translateTestCase(
+      mockMessage('!h\nBonjour\nBonjour\nBonjour'),
+      {
+        from: 'French',
+        to: 'English',
+        translation: 'Hi\nHi\nHi',
+      },
+      'Bonjour\nBonjour\nBonjour',
+      {}
     );
-
-    await handler(mockMessage('!h\nBonjour\nBonjour\nBonjour'));
-
-    expect(sendTranslation.mock.calls).toHaveLength(1);
-    expect(sendTranslation.mock.calls).toEqual([
-      [
-        MOCK_CHANNEL,
-        mockResult.from,
-        'Bonjour\nBonjour\nBonjour',
-        mockResult.to,
-        mockResult.translation,
-      ],
-    ]);
-    expect(translateSpy.mock.calls).toEqual([
-      ['Bonjour\nBonjour\nBonjour', {}],
-    ]);
   });
 });
