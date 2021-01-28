@@ -95,6 +95,11 @@ describe('Translation Command', () => {
       const match = matches(mockMessage('!habla en fr', {}));
       expect(match).toEqual(true);
     });
+
+    it('should match long language format', () => {
+      const match = matches(mockMessage('!habla english french', {}));
+      expect(match).toEqual(true);
+    });
   });
 
   it('should translate text to default language', async () => {
@@ -134,6 +139,19 @@ describe('Translation Command', () => {
       },
       'Bonjour\nBonjour\nBonjour',
       {}
+    );
+  });
+
+  it('should translate long language format', async () => {
+    await translateTestCase(
+      mockMessage('!h french english Bonjour'),
+      {
+        from: 'French',
+        to: 'English',
+        translation: 'Hi\nHi\nHi',
+      },
+      'Bonjour',
+      { from: 'french', to: 'english' }
     );
   });
 });

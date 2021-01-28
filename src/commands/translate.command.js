@@ -8,7 +8,7 @@ const {
 
 const translator = new Translator();
 
-const COMMAND_PATTERN = `(${config.prefix}|${config.shortPrefix})(( \\w\\w)( \\w\\w)?)?`;
+const COMMAND_PATTERN = `(${config.prefix}|${config.shortPrefix})(( \\w+)( \\w+)?)?`;
 
 const TRANSLATE_COMMAND_REGEXP = new RegExp(
   `^${COMMAND_PATTERN}[\\s\\n](.+)$`,
