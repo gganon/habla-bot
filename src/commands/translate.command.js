@@ -64,7 +64,7 @@ const handler = async message => {
     let errorTitle, errorBody;
 
     if (e instanceof GoogleApiError) {
-      errorTitle = e.message;
+      errorTitle = `Google Translation Error: ${e.message}`;
       errorBody = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
     } else {
       errorTitle = e.message;

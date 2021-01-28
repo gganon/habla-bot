@@ -257,7 +257,7 @@ describe('Translation Command', () => {
     expect(sendError.mock.calls).toEqual([
       [
         MOCK_CHANNEL,
-        mockError.message,
+        `Google Translation Error: ${mockError.message}`,
         '```json\n' + JSON.stringify(mockError.details, null, 2) + '\n```',
       ],
     ]);
