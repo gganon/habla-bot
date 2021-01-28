@@ -165,7 +165,7 @@ describe('Translation Command', () => {
       {
         from: 'French',
         to: 'English',
-        translation: 'Hi\nHi\nHi',
+        translation: 'Hi',
       },
       'Bonjour',
       { from: 'french', to: 'english' }
