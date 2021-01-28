@@ -1,5 +1,8 @@
 const { matches, handler } = require('../../src/commands/translate.command');
-const { sendTranslation } = require('../../src/message');
+const {
+  sendTranslation,
+  fetchReferencedMessage,
+} = require('../../src/message');
 const translator = require('../../src/translator');
 
 jest.mock('../../src/message');
@@ -17,6 +20,7 @@ const mockMessage = (content, reference) => {
 
 const translateTestCase = async (
   message,
+  referencedMessage,
   mockResult,
   expectedText,
   expectedTranslationOptions
@@ -24,6 +28,10 @@ const translateTestCase = async (
   const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
     mockResult
   );
+
+  if (referencedMessage) {
+    fetchReferencedMessage.mockResolvedValue(referencedMessage);
+  }
 
   await handler(message);
 
@@ -40,6 +48,10 @@ const translateTestCase = async (
   expect(translateSpy.mock.calls).toEqual([
     [expectedText, expectedTranslationOptions],
   ]);
+
+  if (referencedMessage) {
+    expect(fetchReferencedMessage.mock.calls).toEqual([[message]]);
+  }
 };
 
 describe('Translation Command', () => {
@@ -105,6 +117,7 @@ describe('Translation Command', () => {
   it('should translate text to default language', async () => {
     await translateTestCase(
       mockMessage('!h Bonjour'),
+      null,
       { from: 'French', to: 'English', translation: 'Hi' },
       'Bonjour',
       {}
@@ -114,6 +127,7 @@ describe('Translation Command', () => {
   it('should translate text to specified language', async () => {
     await translateTestCase(
       mockMessage('!h en Bonjour'),
+      null,
       { from: 'French', to: 'English', translation: 'Hi' },
       'Bonjour',
       { to: 'en' }
@@ -123,6 +137,7 @@ describe('Translation Command', () => {
   it('should translate text from specified language to specified language', async () => {
     await translateTestCase(
       mockMessage('!h fr en Bonjour'),
+      null,
       { from: 'French', to: 'English', translation: 'Hi' },
       'Bonjour',
       { from: 'fr', to: 'en' }
@@ -132,6 +147,7 @@ describe('Translation Command', () => {
   it('should translate multiline text', async () => {
     await translateTestCase(
       mockMessage('!h\nBonjour\nBonjour\nBonjour'),
+      null,
       {
         from: 'French',
         to: 'English',
@@ -145,11 +161,52 @@ describe('Translation Command', () => {
   it('should translate long language format', async () => {
     await translateTestCase(
       mockMessage('!h french english Bonjour'),
+      null,
       {
         from: 'French',
         to: 'English',
         translation: 'Hi\nHi\nHi',
       },
+      'Bonjour',
+      { from: 'french', to: 'english' }
+    );
+  });
+
+  it('should translate reply reference to default language', async () => {
+    await translateTestCase(
+      mockMessage('!h', { messageID: '1234' }),
+      mockMessage('Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      {}
+    );
+  });
+
+  it('should translate reply reference to specified language', async () => {
+    await translateTestCase(
+      mockMessage('!h en', { messageID: '1234' }),
+      mockMessage('Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      { to: 'en' }
+    );
+  });
+
+  it('should translate reply reference from specified language to specified language', async () => {
+    await translateTestCase(
+      mockMessage('!h fr en', { messageID: '1234' }),
+      mockMessage('Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      { from: 'fr', to: 'en' }
+    );
+  });
+
+  it('should translate reply reference with long language format', async () => {
+    await translateTestCase(
+      mockMessage('!h french english', { messageID: '1234' }),
+      mockMessage('Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
       'Bonjour',
       { from: 'french', to: 'english' }
     );
