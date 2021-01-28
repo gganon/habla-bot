@@ -211,4 +211,24 @@ describe('Translation Command', () => {
       { from: 'french', to: 'english' }
     );
   });
+
+  it('should accept long prefix', async () => {
+    await translateTestCase(
+      mockMessage('!habla fr en Bonjour'),
+      null,
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      { from: 'fr', to: 'en' }
+    );
+  });
+
+  it('should accept long prefix for reply', async () => {
+    await translateTestCase(
+      mockMessage('!habla fr en', { messageID: '1234' }),
+      mockMessage('Bonjour'),
+      { from: 'French', to: 'English', translation: 'Hi' },
+      'Bonjour',
+      { from: 'fr', to: 'en' }
+    );
+  });
 });
