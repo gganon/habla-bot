@@ -2,6 +2,7 @@ const { matches, handler } = require('../../src/commands/translate.command');
 const {
   sendTranslation,
   fetchReferencedMessage,
+  sendError,
 } = require('../../src/message');
 const translator = require('../../src/translator');
 
@@ -230,5 +231,46 @@ describe('Translation Command', () => {
       'Bonjour',
       { from: 'fr', to: 'en' }
     );
+  });
+
+  it('should handle translation API errors', async () => {
+    const mockError = new translator.GoogleApiError({
+      data: {
+        error: {
+          code: 400,
+          message: 'Invalid Value',
+          errors: [
+            {
+              message: 'Invalid Value',
+              domain: 'global',
+              reason: 'invalid',
+            },
+          ],
+        },
+      },
+    });
+
+    translator.Translator.prototype.translate.mockRejectedValue(mockError);
+
+    await handler(mockMessage('!h Bonjour'));
+
+    expect(sendError.mock.calls).toEqual([
+      [
+        MOCK_CHANNEL,
+        mockError.message,
+        '```json\n' + JSON.stringify(mockError.details, null, 2) + '\n```',
+      ],
+    ]);
+  });
+
+  it('should handle other translation errors', async () => {
+    const mockError = new Error('Oop');
+    translator.Translator.prototype.translate.mockRejectedValue(mockError);
+
+    await handler(mockMessage('!h Bonjour'));
+
+    expect(sendError.mock.calls).toEqual([
+      [MOCK_CHANNEL, mockError.message, undefined],
+    ]);
   });
 });

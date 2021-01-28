@@ -65,12 +65,13 @@ const handler = async message => {
 
     if (e instanceof GoogleApiError) {
       errorTitle = e.message;
-      errorBody = '```\n' + JSON.stringify(e.details, null, 2) + '\n```';
+      errorBody = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
     } else {
       errorTitle = e.message;
     }
 
-    sendError(message.channel, e.message, errorTitle, errorBody);
+    sendError(message.channel, errorTitle, errorBody);
+    return;
   }
 
   sendTranslation(
