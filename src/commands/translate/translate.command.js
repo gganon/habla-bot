@@ -3,7 +3,7 @@ const {
   sendError,
   sendTranslation,
   fetchReferencedMessage,
-} = require('../../message');
+} = require('../../util/message');
 const {
   REPLY_TRANSLATE_COMMAND_REGEXP,
   TRANSLATE_COMMAND_REGEXP,

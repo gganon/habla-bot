@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const config = require('./config');
 const messageHandler = require('./handlers/message.handler');
-const logger = require('./logger');
+const logger = require('./util/logger');
 
 const client = new Discord.Client();
 client.login(config.botToken);

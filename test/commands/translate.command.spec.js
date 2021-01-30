@@ -3,10 +3,10 @@ const {
   sendTranslation,
   fetchReferencedMessage,
   sendError,
-} = require('../../src/message');
+} = require('../../src/util/message');
 const translator = require('../../src/translator');
 
-jest.mock('../../src/message');
+jest.mock('../../src/util/message');
 jest.mock('../../src/translator.js');
 
 const MOCK_CHANNEL = { id: '8675309' };
