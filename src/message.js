@@ -7,9 +7,9 @@ const sendError = (channel, title, details) => {
   channel.send(message);
 };
 
-const sendTranslation = (channel, from, text, to, translation) => {
+const sendTranslation = (originalMessage, from, text, to, translation) => {
   const message = `_(Translated from ${from} to ${to})_:\n\n${translation}`;
-  channel.send(message);
+  originalMessage.reply(message);
 };
 
 const fetchReferencedMessage = async message => {

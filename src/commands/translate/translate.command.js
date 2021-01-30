@@ -67,7 +67,7 @@ const handler = async message => {
   }
 
   sendTranslation(
-    message.channel,
+    message,
     translationResult.from,
     text,
     translationResult.to,

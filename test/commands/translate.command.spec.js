@@ -39,7 +39,7 @@ const translateTestCase = async (
   expect(sendTranslation.mock.calls).toHaveLength(1);
   expect(sendTranslation.mock.calls).toEqual([
     [
-      MOCK_CHANNEL,
+      message,
       mockResult.from,
       expectedText,
       mockResult.to,
