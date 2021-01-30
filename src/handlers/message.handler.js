@@ -18,9 +18,7 @@ const messageHandler = async message => {
     return;
   }
 
-  const authorized = await checkIfGuildIsAuthorized(message.guild).catch(
-    logger.error
-  );
+  const authorized = await checkIfGuildIsAuthorized(message.guild);
 
   if (!authorized || (!isBotCommand(message) && !isMentioned(message))) {
     return;
