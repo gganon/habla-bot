@@ -1,6 +1,8 @@
 const config = require('../config');
+const logger = require('../util/logger');
 const translate = require('../commands/translate');
 const help = require('../commands/help');
+const { checkIfGuildIsAuthorized } = require('../util/guild');
 
 const COMMANDS = [help, translate];
 
@@ -12,6 +14,8 @@ const isBotCommand = message =>
 const isMentioned = message => message.mentions.has(message.client.user);
 
 const messageHandler = async message => {
+  checkIfGuildIsAuthorized(message.guild).catch(logger.error);
+
   if ((!isBotCommand(message) && !isMentioned(message)) || message.author.bot) {
     return;
   }
