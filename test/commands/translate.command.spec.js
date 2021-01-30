@@ -110,6 +110,11 @@ describe('Translation Command', () => {
     });
 
     it('should match long language format', () => {
+      const match = matches(mockMessage('!habla english french'));
+      expect(match).toEqual(true);
+    });
+
+    it('should match long language format for reply', () => {
       const match = matches(mockMessage('!habla english french', {}));
       expect(match).toEqual(true);
     });
