@@ -1,4 +1,4 @@
-const { matches, handler } = require('../../src/commands/translate.command');
+const { matches, handler } = require('../../src/commands/translate');
 const {
   sendTranslation,
   fetchReferencedMessage,

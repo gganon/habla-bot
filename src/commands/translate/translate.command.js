@@ -1,23 +1,15 @@
-const config = require('../config');
-const { Translator, GoogleApiError } = require('../translator');
+const { Translator, GoogleApiError } = require('../../translator');
 const {
   sendError,
   sendTranslation,
   fetchReferencedMessage,
-} = require('../message');
+} = require('../../message');
+const {
+  REPLY_TRANSLATE_COMMAND_REGEXP,
+  TRANSLATE_COMMAND_REGEXP,
+} = require('./constants');
 
 const translator = new Translator();
-
-const COMMAND_PATTERN = `(${config.prefix}|${config.shortPrefix})(( \\w+)( \\w+)?)?`;
-
-const TRANSLATE_COMMAND_REGEXP = new RegExp(
-  `^${COMMAND_PATTERN}[\\s\\n](.+)$`,
-  's'
-);
-const REPLY_TRANSLATE_COMMAND_REGEXP = new RegExp(
-  `^${COMMAND_PATTERN}([\\s\\n].*$|$)`,
-  's'
-);
 
 const isReply = message => !!message.reference;
 
