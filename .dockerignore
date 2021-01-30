@@ -1,0 +1,6 @@
+.github
+.vscode
+coverage
+node_modules
+.env
+example.env
