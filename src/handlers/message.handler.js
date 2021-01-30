@@ -1,5 +1,5 @@
-const config = require('./config');
-const translate = require('./commands/translate.command');
+const config = require('../config');
+const translate = require('../commands/translate.command');
 
 const COMMANDS = [translate];
 

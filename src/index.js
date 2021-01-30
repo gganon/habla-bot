@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const config = require('./config.js');
-const messageHandler = require('./message.handler.js');
+const messageHandler = require('./handlers/message.handler.js');
 const logger = require('./logger');
 
 const client = new Discord.Client();
