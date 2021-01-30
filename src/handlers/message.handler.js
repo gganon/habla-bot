@@ -20,6 +20,8 @@ const messageHandler = async message => {
 
   if (command) {
     await command.handler(message);
+  } else {
+    message.reply('Try `!habla help` or `!h help`');
   }
 };
 
