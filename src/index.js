@@ -11,6 +11,15 @@ client.once('ready', () => {
   logger.info('Online');
 });
 
-client.on('message', messageHandler);
+const withError = (event, handler) => async (...args) => {
+  try {
+    await handler(...args);
+  } catch (e) {
+    logger.error(`Error while handling event ${event}`);
+    logger.error(e);
+  }
+};
 
-client.on('guildCreate', guildCreateHandler);
+client.on('message', withError('message', messageHandler));
+
+client.on('guildCreate', withError('guildCreate', guildCreateHandler));

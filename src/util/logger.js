@@ -5,9 +5,10 @@ const config = require('../config');
 const logger = createLogger({
   level: config.env === 'development' ? 'debug' : 'info',
   format: combine(
+    format.errors({ stack: true }),
     timestamp(),
-    printf(({ level, message, timestamp }) => {
-      return `[${timestamp} ${level.toUpperCase()}]: ${message}`;
+    printf(({ level, message, timestamp, stack }) => {
+      return `[${timestamp} ${level.toUpperCase()}]: ${stack || message}`;
     })
   ),
   transports: [new transports.Console()],
