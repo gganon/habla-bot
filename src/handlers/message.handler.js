@@ -1,7 +1,8 @@
 const config = require('../config');
 const translate = require('../commands/translate');
+const help = require('../commands/help');
 
-const COMMANDS = [translate];
+const COMMANDS = [help, translate];
 
 const isBotCommand = message =>
   !!message.content.match(
