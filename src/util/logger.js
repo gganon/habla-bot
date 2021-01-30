@@ -1,6 +1,6 @@
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, printf } = format;
-const config = require('./config');
+const config = require('../config');
 
 const logger = createLogger({
   level: config.env === 'development' ? 'debug' : 'info',
