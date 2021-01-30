@@ -26,24 +26,21 @@ const parseMessage = async message => {
     ? REPLY_TRANSLATE_COMMAND_REGEXP
     : TRANSLATE_COMMAND_REGEXP;
 
-  let [_match, _prefix, _langs, lang1, lang2, text] = message.content.match(
-    regexp
-  );
-  let from, to;
-
-  if (lang2 === undefined) {
-    to = lang1?.trim();
-  } else {
-    from = lang1?.trim();
-    to = lang2?.trim();
-  }
+  const match = message.content.match(regexp);
+  const from = match[3];
+  const to = match[4];
+  let text = match[5];
 
   if (isReply(message)) {
     const referencedMessage = await fetchReferencedMessage(message);
     text = referencedMessage.content;
   }
 
-  return { text, from, to };
+  return {
+    text,
+    from: from === '?' ? undefined : from,
+    to,
+  };
 };
 
 const handler = async message => {
