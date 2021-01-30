@@ -1,4 +1,4 @@
-const Discord = require('discord');
+const Discord = require('discord.js');
 const config = require('./config');
 const messageHandler = require('./handlers/message.handler');
 const logger = require('./logger');
