@@ -52,6 +52,7 @@ class GoogleTranslator {
         {
           params: {
             key: this.apiKey,
+            format: 'text',
             q: text,
             source: options.source,
             target: options.target,

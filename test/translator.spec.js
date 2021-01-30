@@ -33,6 +33,7 @@ const assertApiRequest = (requestArgs, params) => {
     {
       params: {
         ...params,
+        format: 'text',
         key: MOCK_API_KEY,
       },
     },

@@ -36,7 +36,6 @@ const translateTestCase = async (
 
   await handler(message);
 
-  expect(sendTranslation.mock.calls).toHaveLength(1);
   expect(sendTranslation.mock.calls).toEqual([
     [
       message,
@@ -236,6 +235,30 @@ describe('Translation Command', () => {
       'Bonjour mon ami',
       { from: 'fr', to: 'en' }
     );
+  });
+
+  it('should handle mentions being messed by Google Translate', async () => {
+    const message = mockMessage(
+      '!h fr en Bonjour <@!123456789012345678> <@!123456789012345678>'
+    );
+    const mockResult = {
+      from: 'French',
+      to: 'English',
+      translation: 'Hello <@! 123456789012345678> <@! 123456789012345678>', // Google Translate adds an unwanted space in the mention
+    };
+
+    translator.Translator.prototype.translate.mockResolvedValue(mockResult);
+    await handler(message);
+
+    expect(sendTranslation.mock.calls).toEqual([
+      [
+        message,
+        mockResult.from,
+        'Bonjour <@!123456789012345678> <@!123456789012345678>',
+        mockResult.to,
+        'Hello <@!123456789012345678> <@!123456789012345678>', // expecting space to be fixed
+      ],
+    ]);
   });
 
   it('should handle translation API errors', async () => {

@@ -43,6 +43,11 @@ const parseMessage = async message => {
   };
 };
 
+// fix any unwanted changes resulting from Google Translate
+const fixTranslation = translation => {
+  return translation.replace(/<@! (\d+)>/g, '<@!$1>'); // fix unwanted space introduced by Google Translate in user mentions
+};
+
 const handler = async message => {
   const { text, from, to } = await parseMessage(message);
   let translationResult;
@@ -62,6 +67,8 @@ const handler = async message => {
     sendError(message.channel, errorTitle, errorBody);
     return;
   }
+
+  translationResult.translation = fixTranslation(translationResult.translation);
 
   sendTranslation(
     message,
