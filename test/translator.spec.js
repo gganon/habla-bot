@@ -3,6 +3,7 @@ const axios = require('axios');
 
 const MOCK_API_KEY = 'fake_key';
 
+jest.mock('../src/util/logger'); // silence logs
 jest.mock('axios');
 jest.mock('../src/config', () => {
   return {

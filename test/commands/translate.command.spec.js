@@ -6,6 +6,7 @@ const {
 } = require('../../src/util/message');
 const translator = require('../../src/translator');
 
+jest.mock('../../src/util/logger'); // silence logs
 jest.mock('../../src/util/message');
 jest.mock('../../src/translator.js');
 
