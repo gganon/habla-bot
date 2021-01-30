@@ -4,12 +4,14 @@ const translate = require('../commands/translate');
 const COMMANDS = [translate];
 
 const isBotCommand = message =>
-  message.content.match(
+  !!message.content.match(
     new RegExp(`^(${config.prefix}|${config.shortPrefix})(\\s+.*)?$`)
   );
 
+const isMentioned = message => message.mentions.has(message.client.user);
+
 const messageHandler = async message => {
-  if (!isBotCommand(message) || message.author.bot) {
+  if ((!isBotCommand(message) && !isMentioned(message)) || message.author.bot) {
     return;
   }
 
