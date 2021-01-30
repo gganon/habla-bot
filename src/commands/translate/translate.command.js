@@ -1,4 +1,5 @@
 const { Translator, GoogleApiError } = require('../../translator');
+const logger = require('../../util/logger');
 const {
   sendError,
   sendTranslation,
@@ -55,6 +56,9 @@ const handler = async message => {
   try {
     translationResult = await translator.translate(text, { from, to });
   } catch (e) {
+    logger.error('Error in translation');
+    logger.error(e);
+
     let errorTitle, errorBody;
 
     if (e instanceof GoogleApiError) {
@@ -80,6 +84,7 @@ const handler = async message => {
 };
 
 module.exports = {
+  name: 'translate',
   matches,
   handler,
 };

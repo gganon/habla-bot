@@ -15,6 +15,7 @@ const handler = message => {
 };
 
 module.exports = {
+  name: 'help',
   matches,
   handler,
 };

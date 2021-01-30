@@ -20,11 +20,17 @@ const messageHandler = async message => {
     return;
   }
 
+  logger.info(
+    `Received command from "${message.author.tag}" in server "${message.guild.name}"`
+  );
+
   const command = COMMANDS.find(command => command.matches(message));
 
   if (command) {
+    logger.info(`Identified command: "${command.name}"`);
     await command.handler(message);
   } else {
+    logger.info('Unknown command. Sending default message');
     message.reply('Try `!habla help` or `!h help`');
   }
 };

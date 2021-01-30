@@ -1,6 +1,7 @@
 const config = require('./config');
 const axios = require('axios');
 const ISO6391 = require('iso-639-1');
+const logger = require('./util/logger');
 
 const GOOGLE_TRANSLATION_API_BASE_URL =
   'https://translation.googleapis.com/language/translate/v2';
@@ -63,8 +64,18 @@ class GoogleTranslator {
       return response.data.data.translations[0];
     } catch (e) {
       if (e.response) {
-        throw new GoogleApiError(e.response);
+        const err = new GoogleApiError(e.response);
+        logger.error(
+          `Google Translation API Error: ${JSON.stringify(
+            err.details,
+            null,
+            2
+          )}`
+        );
+        logger.error(err);
+        throw err;
       } else {
+        logger.error(`Google Translation API Error: ${e.message}`);
         throw e;
       }
     }
