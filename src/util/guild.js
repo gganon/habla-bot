@@ -33,7 +33,11 @@ const checkIfGuildIsAuthorized = async guild => {
 
     logger.warn(`Leaving server "${guild.name}" (${guild.id})...`);
     await guild.leave();
+
+    return false;
   }
+
+  return true;
 };
 
 module.exports = {

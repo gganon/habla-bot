@@ -14,9 +14,15 @@ const isBotCommand = message =>
 const isMentioned = message => message.mentions.has(message.client.user);
 
 const messageHandler = async message => {
-  checkIfGuildIsAuthorized(message.guild).catch(logger.error);
+  if (message.author.bot) {
+    return;
+  }
 
-  if ((!isBotCommand(message) && !isMentioned(message)) || message.author.bot) {
+  const authorized = await checkIfGuildIsAuthorized(message.guild).catch(
+    logger.error
+  );
+
+  if (!authorized || (!isBotCommand(message) && !isMentioned(message))) {
     return;
   }
 
