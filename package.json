@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start:dev": "nodemon --watch .env --watch src src/",
+    "start:prod": "node src",
     "lint": "eslint src/**/*.js test/**/*.js",
     "lint:fix": "eslint --fix src/**/*.js test/**/*.js --max-warnings 5",
     "test": "jest --config jest.json",
