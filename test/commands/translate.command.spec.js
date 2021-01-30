@@ -1,3 +1,4 @@
+const { LoremIpsum } = require('lorem-ipsum');
 const { matches, handler } = require('../../src/commands/translate');
 const {
   sendTranslation,
@@ -9,6 +10,13 @@ const translator = require('../../src/translator');
 jest.mock('../../src/util/logger'); // silence logs
 jest.mock('../../src/util/message');
 jest.mock('../../src/translator.js');
+jest.mock('../../src/config', () => {
+  return {
+    prefix: '!habla',
+    shortPrefix: '!h',
+    charLimit: 500,
+  };
+});
 
 const MOCK_CHANNEL = { id: '8675309' };
 
@@ -17,6 +25,7 @@ const mockMessage = (content, reference) => {
     channel: MOCK_CHANNEL,
     content,
     reference,
+    send: jest.fn(),
   };
 };
 
@@ -300,6 +309,16 @@ describe('Translation Command', () => {
 
     expect(sendError.mock.calls).toEqual([
       [MOCK_CHANNEL, mockError.message, undefined],
+    ]);
+  });
+
+  it('should ignore messages above 500 characters', async () => {
+    const lorem = new LoremIpsum();
+    const message = mockMessage(`!h ? en ${lorem.generateWords(200)}`);
+    await handler(message);
+
+    expect(message.send.mock.calls).toEqual([
+      ['That message is too long! Please limit your text to 500 characters.'],
     ]);
   });
 });

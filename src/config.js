@@ -9,4 +9,5 @@ module.exports = {
   defaultLanguage: 'en',
   prefix: '!habla',
   shortPrefix: '!h',
+  charLimit: 500,
 };

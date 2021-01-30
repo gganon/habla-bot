@@ -1,3 +1,4 @@
+const { charLimit } = require('../../config');
 const { Translator, GoogleApiError } = require('../../translator');
 const logger = require('../../util/logger');
 const {
@@ -52,6 +53,12 @@ const fixTranslation = translation => {
 const handler = async message => {
   const { text, from, to } = await parseMessage(message);
   let translationResult;
+
+  if (text.length > charLimit) {
+    return message.send(
+      `That message is too long! Please limit your text to ${charLimit} characters.`
+    );
+  }
 
   try {
     translationResult = await translator.translate(text, { from, to });
