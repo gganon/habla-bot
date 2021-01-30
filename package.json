@@ -14,7 +14,7 @@
   "license": "UNLICENSE",
   "dependencies": {
     "axios": "^0.21.1",
-    "discord.js": "^12.5.1",
+    "discord.js": "git://github.com/discordjs/discord.js#cee6cf70ce76e9b06dc7f25bfd77498e18d7c8d4",
     "dotenv": "^8.2.0",
     "iso-639-1": "^2.1.7",
     "winston": "^3.3.3"
