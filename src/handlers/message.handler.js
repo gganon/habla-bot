@@ -11,7 +11,8 @@ const isBotCommand = message =>
     new RegExp(`^(${config.prefix}|${config.shortPrefix})(\\s+.*)?$`)
   );
 
-const isMentioned = message => message.mentions.has(message.client.user);
+const isMentioned = message =>
+  message.content.match(`<@!${message.client.user.id}>`);
 
 const messageHandler = async message => {
   if (message.author.bot) {
