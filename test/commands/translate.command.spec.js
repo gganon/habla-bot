@@ -112,6 +112,8 @@ describe('Translation Command', () => {
       expect(match).toEqual(false);
       match = matches(mockMessage('!h en fr'));
       expect(match).toEqual(false);
+      match = matches(mockMessage('!h en', {}));
+      expect(match).toEqual(false);
     });
 
     it('should accept long prefix as well', () => {
