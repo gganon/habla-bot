@@ -26,13 +26,13 @@ const TRANSLATE_HELP = [
   {
     name: "Translate someone else's message",
     value: `Reply to the other person's message with:
-\`h!\` _(Habla will detect the language and translate it to English)_
+\`!h\` _(Habla will detect the language and translate it to English)_
 
 Or specify the language you want to translate it to:
-\`h! french dutch\` _(from french to dutch)_
+\`!h french dutch\` _(from french to dutch)_
 
 Or use '?' if you don't know the original language:
-\`h! ? dutch\``,
+\`!h ? dutch\``,
   },
 ];
 
