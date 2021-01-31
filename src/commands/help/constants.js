@@ -34,10 +34,10 @@ const TRANSLATE_HELP = [
 \`${config.shortPrefix}\` _(Habla will detect the language and translate it to English)_
 
 Or specify the language you want to translate it to:
-\`${config.shortPrefix} french dutch\` _(from french to dutch)_
+\`${config.shortPrefix} dutch\` _(Habla will detect the language and translate it to Dutch)_
 
-Or use '?' if you don't know the original language:
-\`${config.shortPrefix} ? dutch\``,
+Or specify the source language if Habla has trouble detecting it
+\`${config.shortPrefix} english dutch\` _(from English to Dutch)_`,
   },
 ];
 
