@@ -323,4 +323,18 @@ describe('Translation Command', () => {
       ['That message is too long! Please limit your text to 500 characters.'],
     ]);
   });
+
+  it('should normalize unicode characters', async () => {
+    await translateTestCase(
+      mockMessage('!h en fr 𝚠𝚘𝚠 𝚝𝚑𝚊𝚝𝚜 𝚊𝚖𝚊𝚣𝚒𝚗𝚐'),
+      null,
+      {
+        from: 'French',
+        to: 'French',
+        translation: "Wouh, c'est dingue",
+      },
+      'wow thats amazing',
+      { from: 'en', to: 'fr' }
+    );
+  });
 });
