@@ -39,7 +39,7 @@ const parseMessage = async message => {
   }
 
   return {
-    text,
+    text: text.normalize('NFKC'),
     from: from === '?' ? undefined : from,
     to,
   };
