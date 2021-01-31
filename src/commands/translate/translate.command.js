@@ -29,9 +29,17 @@ const parseMessage = async message => {
     : TRANSLATE_COMMAND_REGEXP;
 
   const match = message.content.match(regexp);
-  const from = match[3];
-  const to = match[4];
+  const lang1 = match[3];
+  const lang2 = match[4];
   let text = match[5];
+  let from, to;
+
+  if (!lang2) {
+    to = lang1;
+  } else {
+    from = lang1;
+    to = lang2.trim();
+  }
 
   if (isReply(message)) {
     const referencedMessage = await fetchReferencedMessage(message);

@@ -97,12 +97,17 @@ describe('Translation Command', () => {
       expect(match).toEqual(true);
     });
 
+    it('should match reply translation request with to language', () => {
+      const match = matches(mockMessage('!h fr', {}));
+      expect(match).toEqual(true);
+    });
+
     it('should match reply request with "from" and "to" languages specified', () => {
       const match = matches(mockMessage('!h en fr', {}));
       expect(match).toEqual(true);
     });
 
-    it('should match reply request with uknown "from" language', () => {
+    it('should match reply request with unknown "from" language', () => {
       const match = matches(mockMessage('!h ? fr', {}));
       expect(match).toEqual(true);
     });
@@ -111,8 +116,6 @@ describe('Translation Command', () => {
       let match = matches(mockMessage('!h en'));
       expect(match).toEqual(false);
       match = matches(mockMessage('!h en fr'));
-      expect(match).toEqual(false);
-      match = matches(mockMessage('!h en', {}));
       expect(match).toEqual(false);
     });
 
@@ -196,6 +199,16 @@ describe('Translation Command', () => {
       { from: 'French', to: 'English', translation: 'Hi' },
       'Bonjour',
       {}
+    );
+  });
+
+  it('should translate reply reference to specified language', async () => {
+    await translateTestCase(
+      mockMessage('!h en', { messageID: '1234' }),
+      mockMessage('Bonjour mon ami'),
+      { from: 'French', to: 'English', translation: 'Hello my friend' },
+      'Bonjour mon ami',
+      { to: 'en' }
     );
   });
 
