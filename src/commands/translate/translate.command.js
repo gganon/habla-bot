@@ -5,6 +5,7 @@ const {
   sendError,
   sendTranslation,
   fetchReferencedMessage,
+  TRANSLATION_HEADER_REGEXP,
 } = require('../../util/message');
 const {
   REPLY_TRANSLATE_COMMAND_REGEXP,
@@ -14,6 +15,12 @@ const {
 const translator = new Translator();
 
 const isReply = message => !!message.reference;
+
+const isFromHabla = message =>
+  isReply(message) && message.author.id === message.client.user.id;
+
+const removeTranslationHeader = content =>
+  content.replace(TRANSLATION_HEADER_REGEXP, '');
 
 const matches = message => {
   const regexp = isReply(message)
@@ -44,6 +51,10 @@ const parseMessage = async message => {
   if (isReply(message)) {
     const referencedMessage = await fetchReferencedMessage(message);
     text = referencedMessage.content;
+
+    if (isFromHabla(referencedMessage)) {
+      text = removeTranslationHeader(text);
+    }
   }
 
   return {
