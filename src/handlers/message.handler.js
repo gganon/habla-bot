@@ -35,7 +35,9 @@ const messageHandler = async message => {
     await command.handler(message);
   } else {
     logger.info('Unknown command. Sending default message');
-    message.reply('Try `!habla help` or `!h help`');
+    message.reply(
+      `Try \`${config.prefix} help\` or \`${config.shortPrefix} help\``
+    );
   }
 };
 
