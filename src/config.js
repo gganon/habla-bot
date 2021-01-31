@@ -7,7 +7,7 @@ module.exports = {
   googleTranslationApiKey: process.env.GOOGLE_TRANSLATION_API_KEY,
   whitelistedServers: process.env.WHITELISTED_SERVERS.split(','),
   defaultLanguage: 'en',
-  prefix: '!habla',
-  shortPrefix: '!h',
+  prefix: process.env.BOT_PREFIX || '!habla',
+  shortPrefix: process.env.BOT_SHORT_PREFIX || '!h',
   charLimit: 500,
 };
