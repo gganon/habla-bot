@@ -18,14 +18,14 @@ jest.mock('../../src/config', () => {
   };
 });
 
-const MOCK_CHANNEL = { id: '8675309' };
-
 const mockMessage = (content, reference) => {
   return {
-    channel: MOCK_CHANNEL,
+    channel: {
+      id: '8675309',
+      send: jest.fn(),
+    },
     content,
     reference,
-    send: jest.fn(),
   };
 };
 
@@ -305,11 +305,12 @@ describe('Translation Command', () => {
 
     translator.Translator.prototype.translate.mockRejectedValue(mockError);
 
-    await handler(mockMessage('!h fr en Bonjour'));
+    const message = mockMessage('!h fr en Bonjour');
+    await handler(message);
 
     expect(sendError.mock.calls).toEqual([
       [
-        MOCK_CHANNEL,
+        message.channel,
         `Google Translation Error: ${mockError.message}`,
         '```json\n' + JSON.stringify(mockError.details, null, 2) + '\n```',
       ],
@@ -320,10 +321,11 @@ describe('Translation Command', () => {
     const mockError = new Error('Oop');
     translator.Translator.prototype.translate.mockRejectedValue(mockError);
 
-    await handler(mockMessage('!h fr en Bonjour'));
+    const message = mockMessage('!h fr en Bonjour');
+    await handler(message);
 
     expect(sendError.mock.calls).toEqual([
-      [MOCK_CHANNEL, mockError.message, undefined],
+      [message.channel, mockError.message, undefined],
     ]);
   });
 
@@ -332,7 +334,7 @@ describe('Translation Command', () => {
     const message = mockMessage(`!h ? en ${lorem.generateWords(200)}`);
     await handler(message);
 
-    expect(message.send.mock.calls).toEqual([
+    expect(message.channel.send.mock.calls).toEqual([
       ['That message is too long! Please limit your text to 500 characters.'],
     ]);
   });
