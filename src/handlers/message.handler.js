@@ -8,7 +8,7 @@ const COMMANDS = [help, translate];
 
 const isBotCommand = message =>
   !!message.content.match(
-    new RegExp(`^(${config.prefix}|${config.shortPrefix})(\\s+.*)?$`)
+    new RegExp(`^(${config.prefix}|${config.shortPrefix})(\\s|$)`)
   );
 
 const isMentioned = message =>
