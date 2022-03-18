@@ -74,7 +74,7 @@ const handler = async message => {
   let translationResult;
 
   if (text.length > charLimit) {
-    return message.send(
+    return message.channel.send(
       `That message is too long! Please limit your text to ${charLimit} characters.`
     );
   }
