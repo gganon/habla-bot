@@ -12,7 +12,7 @@ const isBotCommand = message =>
   );
 
 const isMentioned = message =>
-  message.content.match(`<@!${message.client.user.id}>`);
+  message.content.match(`<@${message.client.user.id}>`);
 
 const messageHandler = async message => {
   if (message.author.bot) {
