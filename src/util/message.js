@@ -21,11 +21,7 @@ const sendTranslation = (originalMessage, from, text, to, translation) => {
 };
 
 const fetchReferencedMessage = async message => {
-  const client = message.client;
-  const { channelID, messageID } = message.reference;
-  const channel = await client.channels.fetch(channelID);
-  const referencedMessage = await channel.messages.fetch(messageID);
-  return referencedMessage;
+  return await message.fetchReference();
 };
 
 module.exports = {
