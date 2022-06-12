@@ -15,7 +15,7 @@
   "license": "UNLICENSE",
   "dependencies": {
     "axios": "^0.21.2",
-    "discord.js": "git://github.com/discordjs/discord.js#cee6cf70ce76e9b06dc7f25bfd77498e18d7c8d4",
+    "discord.js": "^13.8.0",
     "dotenv": "^8.2.0",
     "iso-639-1": "^2.1.7",
     "winston": "^3.3.3"
@@ -26,7 +26,7 @@
     "eslint-plugin-jest": "^24.1.3",
     "eslint-plugin-prettier": "^3.3.1",
     "husky": "^4.3.8",
-    "jest": "^26.6.3",
+    "jest": "^28.1.1",
     "lint-staged": "^10.5.3",
     "lorem-ipsum": "^2.0.3",
     "nodemon": "^2.0.7",
