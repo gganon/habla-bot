@@ -4,7 +4,6 @@ const logger = require('../../util/logger');
 const {
   sendError,
   sendTranslation,
-  fetchReferencedMessage,
   TRANSLATION_HEADER_REGEXP,
 } = require('../../util/message');
 const {
@@ -49,7 +48,7 @@ const parseMessage = async message => {
   }
 
   if (isReply(message)) {
-    const referencedMessage = await fetchReferencedMessage(message);
+    const referencedMessage = await message.fetchReference();;
     text = referencedMessage.content;
 
     if (isFromHabla(referencedMessage)) {

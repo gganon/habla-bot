@@ -20,14 +20,9 @@ const sendTranslation = (originalMessage, from, text, to, translation) => {
   originalMessage.reply(message);
 };
 
-const fetchReferencedMessage = async message => {
-  return await message.fetchReference();
-};
-
 module.exports = {
   sendError,
   sendTranslation,
-  fetchReferencedMessage,
   TRANSLATION_HEADER,
   TRANSLATION_HEADER_REGEXP,
 };
