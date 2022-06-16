@@ -1,10 +1,6 @@
 const { LoremIpsum } = require('lorem-ipsum');
 const { matches, handler } = require('../../src/commands/translate');
-const {
-  sendTranslation,
-  fetchReferencedMessage,
-  sendError,
-} = require('../../src/util/message');
+const { sendTranslation, sendError } = require('../../src/util/message');
 const translator = require('../../src/translator');
 
 jest.mock('../../src/util/logger'); // silence logs
@@ -41,7 +37,9 @@ const translateTestCase = async (
   );
 
   if (referencedMessage) {
-    fetchReferencedMessage.mockResolvedValue(referencedMessage);
+    message.fetchReference = jest
+      .fn()
+      .mockImplementation(async () => referencedMessage);
   }
 
   await handler(message);
@@ -60,7 +58,7 @@ const translateTestCase = async (
   ]);
 
   if (referencedMessage) {
-    expect(fetchReferencedMessage.mock.calls).toEqual([[message]]);
+    expect(message.fetchReference).toHaveBeenCalled();
   }
 };
 
