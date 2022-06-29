@@ -4,7 +4,9 @@ const messageHandler = require('./handlers/message.handler');
 const guildCreateHandler = require('./handlers/guild-create.handler');
 const logger = require('./util/logger');
 
-const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Discord.Client({
+  intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES],
+});
 client.login(config.botToken);
 
 client.once('ready', () => {
