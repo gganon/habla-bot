@@ -48,7 +48,7 @@ const parseMessage = async message => {
   }
 
   if (isReply(message)) {
-    const referencedMessage = await message.fetchReference();;
+    const referencedMessage = await message.fetchReference();
     text = referencedMessage.content;
 
     if (isFromHabla(referencedMessage)) {
@@ -93,13 +93,12 @@ const handler = async message => {
       errorTitle = e.message;
     }
 
-    sendError(message.channel, errorTitle, errorBody);
-    return;
+    return sendError(message.channel, errorTitle, errorBody);
   }
 
   translationResult.translation = fixTranslation(translationResult.translation);
 
-  sendTranslation(
+  return sendTranslation(
     message,
     translationResult.from,
     text,

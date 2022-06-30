@@ -7,7 +7,7 @@ const sendError = (channel, title, details) => {
   const message = new Discord.MessageEmbed()
     .setTitle(title)
     .addField('Details', details);
-  channel.send(message);
+  return channel.send(message);
 };
 
 const sendTranslation = (originalMessage, from, text, to, translation) => {
