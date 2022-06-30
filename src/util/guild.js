@@ -6,6 +6,12 @@ I was recently added to your server "{{guild_name}}" by one of your members.
 Unfortunately, I am a private bot developed for private use by my owner and I am not authorized to be added to your server so I will be leaving your server.
 Sorry about that. Have a nice day!`;
 
+const noWhiteList = !config.whitelistedServers.length;
+
+if (noWhiteList) {
+  logger.warn('No whitelisted servers configured!');
+}
+
 const informUnauthorizedInvite = async guild => {
   const owner = await guild.members.fetch(guild.ownerID);
   await owner.send(
@@ -14,6 +20,9 @@ const informUnauthorizedInvite = async guild => {
 };
 
 const checkIfGuildIsAuthorized = async guild => {
+  if (noWhiteList) {
+    return true;
+  }
   if (!config.whitelistedServers.includes(guild.id)) {
     logger.warn(
       `Server "${guild.name}" (${guild.id}) is not whitelisted! Informing owner about this event...`
