@@ -11,7 +11,7 @@ const handler = message => {
     )
     .addFields(TRANSLATE_HELP);
 
-  message.reply({ embeds: [helpMessage] });
+  return message.reply({ embeds: [helpMessage] });
 };
 
 module.exports = {
