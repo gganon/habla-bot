@@ -9,12 +9,16 @@
     "lint": "eslint src/**/*.js test/**/*.js",
     "lint:fix": "eslint --fix src/**/*.js test/**/*.js --max-warnings 5",
     "test": "jest --config jest.json",
-    "test:debug": "node --inspect-brk node_modules/.bin/jest --config jest.json"
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --config jest.json",
+    "register": "node src/util/register.js"
   },
   "author": "GGanon",
   "license": "UNLICENSE",
   "dependencies": {
+    "@discordjs/builders": "^0.15.0",
+    "@discordjs/rest": "^0.5.0",
     "axios": "^0.21.2",
+    "discord-api-types": "^0.36.1",
     "discord.js": "^13.8.0",
     "dotenv": "^8.2.0",
     "iso-639-1": "^2.1.7",

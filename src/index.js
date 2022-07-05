@@ -3,6 +3,7 @@ const config = require('./config');
 const messageHandler = require('./handlers/message.handler');
 const guildCreateHandler = require('./handlers/guild-create.handler');
 const logger = require('./util/logger');
+const interactionHandler = require('./handlers/interaction.handler');
 
 const client = new Discord.Client({
   intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES],
@@ -25,3 +26,8 @@ const withError = (event, handler) => async (...args) => {
 client.on('messageCreate', withError('messageCreate', messageHandler));
 
 client.on('guildCreate', withError('guildCreate', guildCreateHandler));
+
+client.on(
+  'interactionCreate',
+  withError('interactionCreate', interactionHandler)
+);

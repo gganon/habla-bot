@@ -12,4 +12,5 @@ module.exports = {
   prefix: process.env.BOT_PREFIX || '!habla',
   shortPrefix: process.env.BOT_SHORT_PREFIX || '!h',
   charLimit: 500,
+  clientId: process.env.BOT_USER_ID.toString() || '69',
 };

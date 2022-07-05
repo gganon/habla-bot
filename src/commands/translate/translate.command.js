@@ -1,15 +1,17 @@
 const { charLimit } = require('../../config');
+const ISO6391 = require('iso-639-1');
 const { Translator, GoogleApiError } = require('../../translator');
+const { TRANSLATION_HEADER_REGEXP } = require('../../util/constants');
 const logger = require('../../util/logger');
-const {
-  sendError,
-  sendTranslation,
-  TRANSLATION_HEADER_REGEXP,
-} = require('../../util/message');
+const { sendError, sendTranslation } = require('../../util/message');
 const {
   REPLY_TRANSLATE_COMMAND_REGEXP,
   TRANSLATE_COMMAND_REGEXP,
 } = require('./constants');
+const {
+  createErrorMessage,
+  createTranslationMessage,
+} = require('../../util/util');
 
 const translator = new Translator();
 
@@ -107,8 +109,78 @@ const handler = async message => {
   );
 };
 
+/**
+ *
+ * @param {import('discord.js').CommandInteraction} interaction
+ */
+const interactionHandler = async interaction => {
+  const text = interaction.options.getString('text');
+  const from = interaction.options.getString('from', false);
+  const to = interaction.options.getString('to', false);
+  let translationResult;
+
+  if (text.length > charLimit) {
+    return interaction.reply(
+      `That message is too long! Please limit your text to ${charLimit} characters.`
+    );
+  }
+
+  try {
+    await interaction.deferReply();
+    translationResult = await translator.translate(text, { from, to });
+  } catch (e) {
+    logger.error('Error in translation');
+    logger.error(e);
+
+    let errorTitle, errorBody;
+
+    if (e instanceof GoogleApiError) {
+      errorTitle = `Google Translation Error: ${e.message}`;
+      errorBody = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
+    } else {
+      errorTitle = e.message;
+    }
+
+    return interaction.editReply(createErrorMessage(errorTitle, errorBody));
+  }
+
+  translationResult.translation = fixTranslation(translationResult.translation);
+
+  return interaction.editReply(
+    createTranslationMessage(
+      translationResult.from,
+      translationResult.to,
+      translationResult.translation
+    )
+  );
+};
+
+const getMatchingAutocompleteOptions = query => {
+  if (!query) {
+    return ISO6391.getAllNames()
+      .map(r => {
+        return { name: r, value: r };
+      })
+      .slice(0, 25);
+  }
+  const list = ISO6391.getAllNames();
+  const lQuery = query.toLowerCase();
+
+  return list
+    .filter(r => r.toLowerCase().includes(lQuery))
+    .map(r => {
+      return { name: r, value: r };
+    })
+    .slice(0, 25);
+};
+
 module.exports = {
   name: 'translate',
   matches,
   handler,
+  interactionHandler,
+  autocomplete: {
+    to: getMatchingAutocompleteOptions,
+    from: getMatchingAutocompleteOptions,
+  },
 };
