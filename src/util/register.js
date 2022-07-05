@@ -1,5 +1,6 @@
 'use strict';
 
+const logger = require('../util/logger');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const config = require('../config');
@@ -12,7 +13,7 @@ const rest = new REST({ version: '9' }).setToken(config.botToken);
 const gid = process.argv[2];
 
 for (const i of commands) {
-  console.log(i.name);
+  logger.log(i.name);
 }
 
 rest
@@ -23,11 +24,11 @@ rest
     { body: commands }
   )
   .then(() =>
-    console.log(
+    logger.info(
       'Successfully registered ' +
         commands.length +
         ' application commands' +
         (gid.length ? ' in guild ' + gid : '')
     )
   )
-  .catch(console.error);
+  .catch(logger.error);

@@ -1,5 +1,6 @@
 'use strict';
 
+const logger = require('../util/logger');
 const translate = require('../commands/translate');
 
 const COMMANDS = [translate];
@@ -10,7 +11,7 @@ const COMMANDS = [translate];
 const autocompleteHandler = autocomplete => {
   const command = COMMANDS.find(r => r.name === autocomplete.commandName);
   if (!command) {
-    console.error(
+    logger.warn(
       "[AUTOCOMPLETE_ERROR] Unknown command '" + autocomplete.commandName + "'"
     );
     return;
@@ -19,7 +20,7 @@ const autocompleteHandler = autocomplete => {
   if (command.autocomplete) {
     return autocomplete.respond(command.autocomplete[opt.name](opt.value));
   } else {
-    console.error(
+    logger.warn(
       "[AUTOCOMPLETE_ERROR] Command '" +
         autocomplete.commandName +
         "' have autocomplete enabled for option '" +
