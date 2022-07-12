@@ -27,6 +27,7 @@ const SLASH_COMMAND_BUILDER = new SlashCommandBuilder()
   );
 const TRANSLATION_HEADER = '_(Translated from {{from}} to {{to}})_:\n\n';
 const TRANSLATION_HEADER_REGEXP = /_\(Translated from \w+ to \w+\)_:\n\n/;
+const MAX_AUTOCOMPLETE_RESPOND_ENTRY = 25;
 
 module.exports = {
   TRANSLATE_COMMAND_REGEXP,
@@ -34,4 +35,5 @@ module.exports = {
   SLASH_COMMAND_BUILDER,
   TRANSLATION_HEADER,
   TRANSLATION_HEADER_REGEXP,
+  MAX_AUTOCOMPLETE_RESPOND_ENTRY,
 };

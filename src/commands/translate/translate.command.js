@@ -9,6 +9,7 @@ const {
   SLASH_COMMAND_BUILDER,
   TRANSLATION_HEADER,
   TRANSLATION_HEADER_REGEXP,
+  MAX_AUTOCOMPLETE_RESPOND_ENTRY,
 } = require('./constants');
 
 const createErrorMessage = (title, details) => {
@@ -154,20 +155,20 @@ const handler = async message => {
 const autocompleteLanguageOptions = query => {
   if (!query) {
     return ISO6391.getAllNames()
-      .map(r => {
-        return { name: r, value: r };
+      .map(language => {
+        return { name: language, value: language };
       })
-      .slice(0, 25);
+      .slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
   }
   const list = ISO6391.getAllNames();
-  const lQuery = query.toLowerCase();
+  const lowercaseQuery = query.toLowerCase();
 
   return list
-    .filter(r => r.toLowerCase().includes(lQuery))
-    .map(r => {
-      return { name: r, value: r };
+    .filter(language => language.toLowerCase().includes(lowercaseQuery))
+    .map(language => {
+      return { name: language, value: language };
     })
-    .slice(0, 25);
+    .slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
 };
 
 module.exports = {
