@@ -10,7 +10,7 @@ const TRANSLATE_COMMAND_REGEXP = new RegExp(
 const REPLY_TRANSLATE_COMMAND_REGEXP = new RegExp(
   `^(${PREFIX})( (\\?|\\w+)( \\w+)?)?$`
 );
-const SLASH_COMMAND_OBJ = new SlashCommandBuilder()
+const SLASH_COMMAND_BUILDER = new SlashCommandBuilder()
   .setName('translate')
   .setDescription('Translate text')
   .addStringOption(opt =>
@@ -29,5 +29,5 @@ const SLASH_COMMAND_OBJ = new SlashCommandBuilder()
 module.exports = {
   TRANSLATE_COMMAND_REGEXP,
   REPLY_TRANSLATE_COMMAND_REGEXP,
-  SLASH_COMMAND_OBJ,
+  SLASH_COMMAND_BUILDER,
 };

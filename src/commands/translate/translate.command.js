@@ -7,6 +7,7 @@ const { sendError, sendTranslation } = require('../../util/message');
 const {
   REPLY_TRANSLATE_COMMAND_REGEXP,
   TRANSLATE_COMMAND_REGEXP,
+  SLASH_COMMAND_BUILDER,
 } = require('./constants');
 const {
   createErrorMessage,
@@ -183,4 +184,5 @@ module.exports = {
     to: getMatchingAutocompleteOptions,
     from: getMatchingAutocompleteOptions,
   },
+  builder: SLASH_COMMAND_BUILDER,
 };
