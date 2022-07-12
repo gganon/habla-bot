@@ -151,7 +151,7 @@ const handler = async message => {
   );
 };
 
-const getMatchingAutocompleteOptions = query => {
+const autocompleteLanguageOptions = query => {
   if (!query) {
     return ISO6391.getAllNames()
       .map(r => {
@@ -175,8 +175,8 @@ module.exports = {
   matches,
   handler,
   autocomplete: {
-    to: getMatchingAutocompleteOptions,
-    from: getMatchingAutocompleteOptions,
+    to: autocompleteLanguageOptions,
+    from: autocompleteLanguageOptions,
   },
   builder: SLASH_COMMAND_BUILDER,
 };
