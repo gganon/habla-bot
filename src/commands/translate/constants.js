@@ -25,9 +25,13 @@ const SLASH_COMMAND_BUILDER = new SlashCommandBuilder()
       .setDescription('From this language')
       .setAutocomplete(true)
   );
+const TRANSLATION_HEADER = '_(Translated from {{from}} to {{to}})_:\n\n';
+const TRANSLATION_HEADER_REGEXP = /_\(Translated from \w+ to \w+\)_:\n\n/;
 
 module.exports = {
   TRANSLATE_COMMAND_REGEXP,
   REPLY_TRANSLATE_COMMAND_REGEXP,
   SLASH_COMMAND_BUILDER,
+  TRANSLATION_HEADER,
+  TRANSLATION_HEADER_REGEXP,
 };
