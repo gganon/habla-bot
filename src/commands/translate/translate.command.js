@@ -27,7 +27,7 @@ const createTranslationMessage = (from, to, translation) => {
 
 const sendError = (channel, title, details) => {
   const message = createErrorMessage(title, details);
-  return channel.send(message);
+  return channel.send({ embeds: [message] });
 };
 
 const sendTranslation = (originalMessage, from, text, to, translation) => {
@@ -138,7 +138,9 @@ const interactionHandler = async interaction => {
     );
   } catch (e) {
     if (e instanceof Error) {
-      return interaction.editReply(createErrorMessage(e.title, e.body));
+      return interaction.editReply({
+        embeds: [createErrorMessage(e.title, e.body)],
+      });
     } else if (e instanceof RangeError) {
       return interaction.editReply(e.message);
     } else {
