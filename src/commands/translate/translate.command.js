@@ -137,7 +137,7 @@ const interactionHandler = async interaction => {
       )
     );
   } catch (e) {
-    if (e instanceof GoogleApiError) {
+    if (e instanceof Error) {
       return interaction.editReply(createErrorMessage(e.title, e.body));
     } else if (e instanceof RangeError) {
       return interaction.editReply(e.message);
@@ -161,7 +161,7 @@ const handler = async message => {
       translationResult.translation
     );
   } catch (e) {
-    if (e instanceof GoogleApiError) {
+    if (e instanceof Error) {
       return sendError(message.channel, e.title, e.body);
     } else if (e instanceof RangeError) {
       return message.channel.send(e.message);
