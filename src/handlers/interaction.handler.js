@@ -50,7 +50,7 @@ const interactionHandler = async interaction => {
 
   if (command) {
     logger.info(`Identified command: "${command.name}"`);
-    await command.handler(interaction);
+    await command.interactionHandler(interaction);
   } else {
     logger.error(
       `Unknown slash command: "${interaction.commandName}" "${interaction.commandId}"`

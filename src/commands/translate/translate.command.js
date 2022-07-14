@@ -2,7 +2,7 @@ const { charLimit } = require('../../config');
 const ISO6391 = require('iso-639-1');
 const { Translator, GoogleApiError } = require('../../translator');
 const logger = require('../../util/logger');
-const { MessageEmbed, CommandInteraction } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const {
   REPLY_TRANSLATE_COMMAND_REGEXP,
   TRANSLATE_COMMAND_REGEXP,
@@ -55,35 +55,28 @@ const matches = message => {
 
 const parseMessage = async message => {
   let text, from, to;
+  const regexp = isReply(message)
+    ? REPLY_TRANSLATE_COMMAND_REGEXP
+    : TRANSLATE_COMMAND_REGEXP;
 
-  if (message instanceof CommandInteraction) {
-    text = message.options.getString('text');
-    from = message.options.getString('from', false);
-    to = message.options.getString('to', false);
+  const match = message.content.match(regexp);
+  const lang1 = match[3];
+  const lang2 = match[4];
+  text = match[5];
+
+  if (!lang2) {
+    to = lang1;
   } else {
-    const regexp = isReply(message)
-      ? REPLY_TRANSLATE_COMMAND_REGEXP
-      : TRANSLATE_COMMAND_REGEXP;
+    from = lang1;
+    to = lang2.trim();
+  }
 
-    const match = message.content.match(regexp);
-    const lang1 = match[3];
-    const lang2 = match[4];
-    text = match[5];
+  if (isReply(message)) {
+    const referencedMessage = await message.fetchReference();
+    text = referencedMessage.content;
 
-    if (!lang2) {
-      to = lang1;
-    } else {
-      from = lang1;
-      to = lang2.trim();
-    }
-
-    if (isReply(message)) {
-      const referencedMessage = await message.fetchReference();
-      text = referencedMessage.content;
-
-      if (isFromHabla(referencedMessage)) {
-        text = removeTranslationHeader(text);
-      }
+    if (isFromHabla(referencedMessage)) {
+      text = removeTranslationHeader(text);
     }
   }
 
@@ -99,57 +92,83 @@ const fixTranslation = translation => {
   return translation.replace(/<@! (\d+)>/g, '<@!$1>'); // fix unwanted space introduced by Google Translate in user mentions
 };
 
-const handler = async message => {
-  const isSlash = message instanceof CommandInteraction;
-  const { text, from, to } = await parseMessage(message);
+const translateText = async (text, from, to) => {
   let translationResult;
 
   if (text.length > charLimit) {
-    const reply = `That message is too long! Please limit your text to ${charLimit} characters.`;
-    return isSlash ? message.reply(reply) : message.channel.send(reply);
+    const reply = `That text is too long! Please limit your text to ${charLimit} characters.`;
+    throw new RangeError(reply);
   }
 
   try {
-    if (isSlash) {
-      await message.deferReply();
-    }
     translationResult = await translator.translate(text, { from, to });
   } catch (e) {
     logger.error('Error in translation');
     logger.error(e);
 
-    let errorTitle, errorBody;
-
     if (e instanceof GoogleApiError) {
-      errorTitle = `Google Translation Error: ${e.message}`;
-      errorBody = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
+      e.title = `Google Translation Error: ${e.message}`;
+      e.body = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
     } else {
-      errorTitle = e.message;
+      e.title = e.message;
     }
-
-    return isSlash
-      ? message.editReply(createErrorMessage(errorTitle, errorBody))
-      : sendError(message.channel, errorTitle, errorBody);
+    throw e;
   }
 
   translationResult.translation = fixTranslation(translationResult.translation);
 
-  if (isSlash) {
-    return message.editReply(
+  return translationResult;
+};
+
+const interactionHandler = async interaction => {
+  try {
+    const text = interaction.options.getString('text');
+    const from = interaction.options.getString('from', false);
+    const to = interaction.options.getString('to', false);
+
+    await interaction.deferReply();
+    const translationResult = await translateText(text, from, to);
+
+    return interaction.editReply(
       createTranslationMessage(
         translationResult.from,
         translationResult.to,
         translationResult.translation
       )
     );
+  } catch (e) {
+    if (e instanceof GoogleApiError) {
+      return interaction.editReply(createErrorMessage(e.title, e.body));
+    } else if (e instanceof RangeError) {
+      return interaction.editReply(e.message);
+    } else {
+      throw e;
+    }
   }
-  return sendTranslation(
-    message,
-    translationResult.from,
-    text,
-    translationResult.to,
-    translationResult.translation
-  );
+};
+
+const handler = async message => {
+  try {
+    const { text, from, to } = await parseMessage(message);
+
+    const translationResult = await translateText(text, from, to);
+
+    return sendTranslation(
+      message,
+      translationResult.from,
+      text,
+      translationResult.to,
+      translationResult.translation
+    );
+  } catch (e) {
+    if (e instanceof GoogleApiError) {
+      return sendError(message.channel, e.title, e.body);
+    } else if (e instanceof RangeError) {
+      return message.channel.send(e.message);
+    } else {
+      throw e;
+    }
+  }
 };
 
 const autocompleteLanguageOptions = query => {
@@ -175,6 +194,7 @@ module.exports = {
   name: 'translate',
   matches,
   handler,
+  interactionHandler,
   autocomplete: {
     to: autocompleteLanguageOptions,
     from: autocompleteLanguageOptions,
