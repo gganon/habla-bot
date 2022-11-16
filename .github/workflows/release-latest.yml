@@ -3,7 +3,7 @@ name: Release latest
 on:
   push:
     branches:
-      - feature/docker-tags
+      - master
 
 jobs:
   test:
