@@ -1,6 +1,6 @@
 {
   "name": "habla-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A discord bot that can translate text and messages between languages using Google's Cloud Translation API",
   "main": "src/index.js",
   "scripts": {
