@@ -1,0 +1,32 @@
+name: Release version
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  tag:
+    name: Get tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Get version tag
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+  build-and-push:
+    uses: ./.github/workflows/build-and-push.yml
+    name: Build and push Docker image
+    needs:
+      - test
+      - tag
+    with:
+      tag: ${{ needs.tag.outputs.tag }}
+    secrets:
+      dockerUsername: ${{ secrets.DOCKERHUB_USERNAME }}
+      dockerPassword: ${{ secrets.DOCKERHUB_TOKEN }}
