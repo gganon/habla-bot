@@ -8,7 +8,7 @@
     "start:prod": "node src",
     "lint": "eslint src/**/*.js test/**/*.js",
     "lint:fix": "eslint --fix src/**/*.js test/**/*.js --max-warnings 5",
-    "test": "echo 'jest --config jest.json'",
+    "test": "jest --config jest.json",
     "test:debug": "node --inspect-brk node_modules/.bin/jest --config jest.json",
     "register": "node src/scripts/register.js"
   },

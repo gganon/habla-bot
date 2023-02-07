@@ -1,10 +1,13 @@
 const { LoremIpsum } = require('lorem-ipsum');
 const { matches, handler } = require('../../src/commands/translate');
-const { sendTranslation, sendError } = require('../../src/util/message');
+const {
+  sendTranslation,
+  sendError,
+} = require('../../src/commands/translate/translate.command.js');
 const translator = require('../../src/translator');
 
 jest.mock('../../src/util/logger'); // silence logs
-jest.mock('../../src/util/message');
+jest.mock('../../src/commands/translate/translate.command.js');
 jest.mock('../../src/translator.js');
 jest.mock('../../src/config', () => {
   return {
@@ -22,6 +25,7 @@ const mockMessage = (content, reference) => {
     },
     content,
     reference,
+    reply: jest.fn(),
   };
 };
 
@@ -44,15 +48,14 @@ const translateTestCase = async (
 
   await handler(message);
 
-  expect(sendTranslation.mock.calls).toEqual([
-    [
-      message,
-      mockResult.from,
-      expectedText,
-      mockResult.to,
-      mockResult.translation,
-    ],
-  ]);
+  const expectedHeader = `Translated from ${mockResult.from} to ${mockResult.to}`;
+  const expectedTranslation = mockResult.translation;
+  expect(message.reply).toBeCalledWith(expect.stringMatching(expectedHeader));
+  expect(message.reply).toBeCalledWith(expect.stringMatching(expectedText));
+  expect(message.reply).toBeCalledWith(
+    expect.stringMatching(expectedTranslation)
+  );
+
   expect(translateSpy.mock.calls).toEqual([
     [expectedText, expectedTranslationOptions],
   ]);
