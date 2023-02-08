@@ -14,7 +14,11 @@ const {
 const { getMockFunc } = require('../../util/testing');
 
 const createErrorMessage = (title, details) => {
-  return new MessageEmbed().setTitle(title).addField('Details', details);
+  const embed = new MessageEmbed().setTitle(title);
+  if (details?.length) {
+    embed.addField('Details', details);
+  }
+  return embed;
 };
 
 const createTranslationMessage = (from, to, translation) => {
@@ -168,8 +172,15 @@ const handler = async message => {
       translationResult.translation
     );
   } catch (e) {
-    if (e instanceof GoogleApiError || e instanceof Error) {
-      return sendError(message.channel, e.title, e.body);
+    console.error(e);
+    if (e instanceof Error) {
+      return sendError(message.channel, e.message);
+    } else if (e instanceof GoogleApiError) {
+      return sendError(
+        message.channel,
+        e.title,
+        '```json\n' + JSON.stringify(e.details, null, 2) + '\n```'
+      );
     } else if (e instanceof RangeError) {
       return message.channel.send(e.message);
     } else {

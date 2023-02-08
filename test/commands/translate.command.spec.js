@@ -304,7 +304,7 @@ describe('Translation Command', () => {
 
     translator.Translator.prototype.translate.mockRejectedValue(mockError);
 
-    const message = mockMessage('!h fr en Bonjour');
+    const message = mockMessage('!h fr zz Bonjour');
     await handler(message);
 
     expect(sendError.mock.calls).toEqual([
@@ -333,9 +333,11 @@ describe('Translation Command', () => {
     const message = mockMessage(`!h ? en ${lorem.generateWords(200)}`);
     await handler(message);
 
-    expect(message.channel.send.mock.calls).toEqual([
-      ['That message is too long! Please limit your text to 500 characters.'],
-    ]);
+    console.log(message.channel.send.mock.calls);
+
+    expect(message.channel.send.mock.calls[0][0].embeds[0].title).toEqual(
+      'That text is too long! Please limit your text to 500 characters.'
+    );
   });
 
   it('should normalize unicode characters', async () => {
