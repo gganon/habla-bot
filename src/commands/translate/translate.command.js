@@ -172,7 +172,6 @@ const handler = async message => {
       translationResult.translation
     );
   } catch (e) {
-    console.error(e);
     if (e instanceof Error) {
       return sendError(message.channel, e.message);
     } else if (e instanceof GoogleApiError) {
