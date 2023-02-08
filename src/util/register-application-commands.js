@@ -9,11 +9,8 @@ const commands = [translateCommand].map(command => command.builder.toJSON());
 const rest = new REST({ version: '9' }).setToken(config.botToken);
 
 const registerApplicationCommands = guildId => {
-  logger.info(
-    `Registering application commands ${
-      guildId ? `in guild ${guildId}` : 'globally'
-    }`
-  );
+  const inGuild = guildId ? `in guild ${guildId}` : 'globally';
+  logger.info(`Registering application commands ${inGuild}`);
   for (const command of commands) {
     logger.info(command.name);
   }
@@ -26,9 +23,7 @@ const registerApplicationCommands = guildId => {
     )
     .then(() => {
       logger.info(
-        `Successfully registered ${commands.length} application commands ${
-          guildId ? `in guild ${guildId}` : 'globally'
-        }`
+        `Successfully registered ${commands.length} application commands ${inGuild}`
       );
       return true;
     });
