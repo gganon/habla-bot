@@ -11,6 +11,7 @@ const {
   TRANSLATION_HEADER_REGEXP,
   MAX_AUTOCOMPLETE_RESPOND_ENTRY,
 } = require('./constants');
+const { getMockFunc } = require('../../util/testing');
 
 const createErrorMessage = (title, details) => {
   return new MessageEmbed().setTitle(title).addField('Details', details);
@@ -25,15 +26,19 @@ const createTranslationMessage = (from, to, translation) => {
   return header + translation;
 };
 
-const sendError = (channel, title, details) => {
+const _sendError = (channel, title, details) => {
   const message = createErrorMessage(title, details);
   return channel.send({ embeds: [message] });
 };
 
-const sendTranslation = (originalMessage, from, text, to, translation) => {
+const sendError = getMockFunc(_sendError);
+
+const _sendTranslation = (originalMessage, from, text, to, translation) => {
   const message = createTranslationMessage(from, to, translation);
   return originalMessage.reply(message);
 };
+
+const sendTranslation = getMockFunc(_sendTranslation);
 
 const translator = new Translator();
 
@@ -163,7 +168,7 @@ const handler = async message => {
       translationResult.translation
     );
   } catch (e) {
-    if (e instanceof Error) {
+    if (e instanceof GoogleApiError || e instanceof Error) {
       return sendError(message.channel, e.title, e.body);
     } else if (e instanceof RangeError) {
       return message.channel.send(e.message);
@@ -202,4 +207,6 @@ module.exports = {
     from: autocompleteLanguageOptions,
   },
   builder: SLASH_COMMAND_BUILDER,
+  sendTranslation,
+  sendError,
 };

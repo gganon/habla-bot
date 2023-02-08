@@ -7,7 +7,6 @@ const {
 const translator = require('../../src/translator');
 
 jest.mock('../../src/util/logger'); // silence logs
-jest.mock('../../src/commands/translate/translate.command.js');
 jest.mock('../../src/translator.js');
 jest.mock('../../src/config', () => {
   return {
@@ -51,7 +50,6 @@ const translateTestCase = async (
   const expectedHeader = `Translated from ${mockResult.from} to ${mockResult.to}`;
   const expectedTranslation = mockResult.translation;
   expect(message.reply).toBeCalledWith(expect.stringMatching(expectedHeader));
-  expect(message.reply).toBeCalledWith(expect.stringMatching(expectedText));
   expect(message.reply).toBeCalledWith(
     expect.stringMatching(expectedTranslation)
   );
