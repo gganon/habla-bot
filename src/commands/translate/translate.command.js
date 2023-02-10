@@ -114,8 +114,8 @@ const translateText = async (text, from, to) => {
 const interactionHandler = async interaction => {
   try {
     const text = interaction.options.getString('text');
-    const from = interaction.options.getString('from', false);
-    const to = interaction.options.getString('to', false);
+    const from = interaction.options.getString('from');
+    const to = interaction.options.getString('to');
 
     await interaction.deferReply();
     const translationResult = await translateText(text, from, to);
@@ -128,15 +128,12 @@ const interactionHandler = async interaction => {
       )
     );
   } catch (e) {
-    if (e instanceof Error) {
-      return interaction.editReply({
-        embeds: [createErrorMessage(e.title, e.body)],
-      });
-    } else if (e instanceof RangeError) {
+    if (e instanceof RangeError) {
       return interaction.editReply(e.message);
-    } else {
-      throw e;
     }
+    return interaction.editReply({
+      embeds: [createErrorMessage(e.title, e.body)],
+    });
   }
 };
 
