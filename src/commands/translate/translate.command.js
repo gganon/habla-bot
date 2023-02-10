@@ -11,14 +11,9 @@ const {
   TRANSLATION_HEADER_REGEXP,
   MAX_AUTOCOMPLETE_RESPOND_ENTRY,
 } = require('./constants');
-const { getMockFunc } = require('../../util/testing');
 
 const createErrorMessage = (title, details) => {
-  const embed = new MessageEmbed().setTitle(title);
-  if (details?.length) {
-    embed.addField('Details', details);
-  }
-  return embed;
+  return new MessageEmbed().setTitle(title).addField('Details', details);
 };
 
 const createTranslationMessage = (from, to, translation) => {
@@ -29,20 +24,6 @@ const createTranslationMessage = (from, to, translation) => {
 
   return header + translation;
 };
-
-const _sendError = (channel, title, details) => {
-  const message = createErrorMessage(title, details);
-  return channel.send({ embeds: [message] });
-};
-
-const sendError = getMockFunc(_sendError);
-
-const _sendTranslation = (originalMessage, from, text, to, translation) => {
-  const message = createTranslationMessage(from, to, translation);
-  return originalMessage.reply(message);
-};
-
-const sendTranslation = getMockFunc(_sendTranslation);
 
 const translator = new Translator();
 
@@ -105,7 +86,7 @@ const translateText = async (text, from, to) => {
   let translationResult;
 
   if (text.length > charLimit) {
-    const reply = `That text is too long! Please limit your text to ${charLimit} characters.`;
+    const reply = `That message is too long! Please limit your text to ${charLimit} characters.`;
     throw new RangeError(reply);
   }
 
@@ -119,7 +100,8 @@ const translateText = async (text, from, to) => {
       e.title = `Google Translation Error: ${e.message}`;
       e.body = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
     } else {
-      e.title = e.message;
+      e.title = 'Error';
+      e.body = '```\n' + e.message + '\n```';
     }
     throw e;
   }
@@ -164,27 +146,17 @@ const handler = async message => {
 
     const translationResult = await translateText(text, from, to);
 
-    return sendTranslation(
-      message,
+    const reply = createTranslationMessage(
       translationResult.from,
-      text,
       translationResult.to,
       translationResult.translation
     );
+    return message.reply(reply);
   } catch (e) {
-    if (e instanceof Error) {
-      return sendError(message.channel, e.message);
-    } else if (e instanceof GoogleApiError) {
-      return sendError(
-        message.channel,
-        e.title,
-        '```json\n' + JSON.stringify(e.details, null, 2) + '\n```'
-      );
-    } else if (e instanceof RangeError) {
-      return message.channel.send(e.message);
-    } else {
-      throw e;
+    if (e instanceof RangeError) {
+      return message.reply(e.message);
     }
+    return message.reply({ embeds: [createErrorMessage(e.title, e.body)] });
   }
 };
 
@@ -217,6 +189,4 @@ module.exports = {
     from: autocompleteLanguageOptions,
   },
   builder: SLASH_COMMAND_BUILDER,
-  sendTranslation,
-  sendError,
 };

@@ -1,7 +1,8 @@
-const config = require('./config');
+const config = require('../config');
 const axios = require('axios');
 const ISO6391 = require('iso-639-1');
-const logger = require('./util/logger');
+const logger = require('../util/logger');
+const { GoogleApiError } = require('./google-api.error');
 
 const GOOGLE_TRANSLATION_API_BASE_URL =
   'https://translation.googleapis.com/language/translate/v2';
@@ -86,17 +87,6 @@ class GoogleTranslator {
   }
 }
 
-class GoogleApiError extends Error {
-  constructor(response) {
-    super(
-      response?.data?.error?.message ||
-        'Unexpected Google Translation API Error'
-    );
-    this.details = response.data.error;
-  }
-}
-
 module.exports = {
   Translator: GoogleTranslator,
-  GoogleApiError,
 };

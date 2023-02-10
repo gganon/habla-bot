@@ -1,13 +1,10 @@
 const { LoremIpsum } = require('lorem-ipsum');
 const { matches, handler } = require('../../src/commands/translate');
-const {
-  sendTranslation,
-  sendError,
-} = require('../../src/commands/translate/translate.command.js');
-const translator = require('../../src/translator');
+const { GoogleApiError } = require('../../src/translator');
+const { Translator } = require('../../src/translator/translator');
 
 jest.mock('../../src/util/logger'); // silence logs
-jest.mock('../../src/translator.js');
+jest.mock('../../src/translator/translator');
 jest.mock('../../src/config', () => {
   return {
     prefix: '!habla',
@@ -35,7 +32,7 @@ const translateTestCase = async (
   expectedText,
   expectedTranslationOptions
 ) => {
-  const translateSpy = translator.Translator.prototype.translate.mockResolvedValue(
+  const translateSpy = Translator.prototype.translate.mockResolvedValue(
     mockResult
   );
 
@@ -54,9 +51,7 @@ const translateTestCase = async (
     expect.stringMatching(expectedTranslation)
   );
 
-  expect(translateSpy.mock.calls).toEqual([
-    [expectedText, expectedTranslationOptions],
-  ]);
+  expect(translateSpy).toBeCalledWith(expectedText, expectedTranslationOptions);
 
   if (referencedMessage) {
     expect(message.fetchReference).toHaveBeenCalled();
@@ -64,6 +59,10 @@ const translateTestCase = async (
 };
 
 describe('Translation Command', () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   describe('should identify translation request messages', () => {
     it('should match request with "to" and "from" languages specified', () => {
       const match = matches(mockMessage('!h en fr pls translate this'));
@@ -271,22 +270,18 @@ describe('Translation Command', () => {
       translation: 'Hello <@! 123456789012345678> <@! 123456789012345678>', // Google Translate adds an unwanted space in the mention
     };
 
-    translator.Translator.prototype.translate.mockResolvedValue(mockResult);
+    Translator.prototype.translate.mockResolvedValue(mockResult);
     await handler(message);
 
-    expect(sendTranslation.mock.calls).toEqual([
-      [
-        message,
-        mockResult.from,
-        'Bonjour <@!123456789012345678> <@!123456789012345678>',
-        mockResult.to,
-        'Hello <@!123456789012345678> <@!123456789012345678>', // expecting space to be fixed
-      ],
-    ]);
+    expect(message.reply).toBeCalledWith(
+      expect.stringMatching(
+        'Hello <@!123456789012345678> <@!123456789012345678>' // expecting space to be fixed
+      )
+    );
   });
 
   it('should handle translation API errors', async () => {
-    const mockError = new translator.GoogleApiError({
+    const mockError = new GoogleApiError({
       data: {
         error: {
           code: 400,
@@ -302,30 +297,49 @@ describe('Translation Command', () => {
       },
     });
 
-    translator.Translator.prototype.translate.mockRejectedValue(mockError);
-
-    const message = mockMessage('!h fr zz Bonjour');
-    await handler(message);
-
-    expect(sendError.mock.calls).toEqual([
-      [
-        message.channel,
-        `Google Translation Error: ${mockError.message}`,
-        '```json\n' + JSON.stringify(mockError.details, null, 2) + '\n```',
-      ],
-    ]);
-  });
-
-  it('should handle other translation errors', async () => {
-    const mockError = new Error('Oop');
-    translator.Translator.prototype.translate.mockRejectedValue(mockError);
+    Translator.prototype.translate.mockRejectedValue(mockError);
 
     const message = mockMessage('!h fr en Bonjour');
     await handler(message);
 
-    expect(sendError.mock.calls).toEqual([
-      [message.channel, mockError.message, undefined],
-    ]);
+    expect(message.reply).toBeCalledWith({
+      embeds: [
+        expect.objectContaining({
+          title: `Google Translation Error: ${mockError.message}`,
+          fields: [
+            expect.objectContaining({
+              name: 'Details',
+              value:
+                '```json\n' +
+                JSON.stringify(mockError.details, null, 2) +
+                '\n```',
+            }),
+          ],
+        }),
+      ],
+    });
+  });
+
+  it('should handle other translation errors', async () => {
+    const mockError = new Error('Oop');
+    Translator.prototype.translate.mockRejectedValue(mockError);
+
+    const message = mockMessage('!h fr en Bonjour');
+    await handler(message);
+
+    expect(message.reply).toBeCalledWith({
+      embeds: [
+        expect.objectContaining({
+          title: 'Error',
+          fields: [
+            expect.objectContaining({
+              name: 'Details',
+              value: '```\n' + mockError.message + '\n```',
+            }),
+          ],
+        }),
+      ],
+    });
   });
 
   it('should ignore messages above 500 characters', async () => {
@@ -333,8 +347,8 @@ describe('Translation Command', () => {
     const message = mockMessage(`!h ? en ${lorem.generateWords(200)}`);
     await handler(message);
 
-    expect(message.channel.send.mock.calls[0][0].embeds[0].title).toEqual(
-      'That text is too long! Please limit your text to 500 characters.'
+    expect(message.reply).toBeCalledWith(
+      'That message is too long! Please limit your text to 500 characters.'
     );
   });
 
