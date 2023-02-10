@@ -3,6 +3,8 @@ const config = require('./config');
 const messageHandler = require('./handlers/message.handler');
 const guildCreateHandler = require('./handlers/guild-create.handler');
 const logger = require('./util/logger');
+const interactionHandler = require('./handlers/interaction.handler');
+const registerApplicationCommands = require('./util/register-application-commands');
 
 const client = new Discord.Client({
   intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES],
@@ -11,6 +13,10 @@ client.login(config.botToken);
 
 client.once('ready', () => {
   logger.info('Online');
+  if (config.env === 'production') {
+    logger.info('Registering application commands on production startup');
+    registerApplicationCommands();
+  }
 });
 
 const withError = (event, handler) => async (...args) => {
@@ -25,3 +31,8 @@ const withError = (event, handler) => async (...args) => {
 client.on('messageCreate', withError('messageCreate', messageHandler));
 
 client.on('guildCreate', withError('guildCreate', guildCreateHandler));
+
+client.on(
+  'interactionCreate',
+  withError('interactionCreate', interactionHandler)
+);

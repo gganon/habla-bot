@@ -1,15 +1,29 @@
 const { charLimit } = require('../../config');
+const ISO6391 = require('iso-639-1');
 const { Translator, GoogleApiError } = require('../../translator');
 const logger = require('../../util/logger');
-const {
-  sendError,
-  sendTranslation,
-  TRANSLATION_HEADER_REGEXP,
-} = require('../../util/message');
+const { MessageEmbed } = require('discord.js');
 const {
   REPLY_TRANSLATE_COMMAND_REGEXP,
   TRANSLATE_COMMAND_REGEXP,
+  SLASH_COMMAND_BUILDER,
+  TRANSLATION_HEADER,
+  TRANSLATION_HEADER_REGEXP,
+  MAX_AUTOCOMPLETE_RESPOND_ENTRY,
 } = require('./constants');
+
+const createErrorMessage = (title, details) => {
+  return new MessageEmbed().setTitle(title).addField('Details', details);
+};
+
+const createTranslationMessage = (from, to, translation) => {
+  const header = TRANSLATION_HEADER.replace('{{from}}', from).replace(
+    '{{to}}',
+    to
+  );
+
+  return header + translation;
+};
 
 const translator = new Translator();
 
@@ -30,6 +44,7 @@ const matches = message => {
 };
 
 const parseMessage = async message => {
+  let text, from, to;
   const regexp = isReply(message)
     ? REPLY_TRANSLATE_COMMAND_REGEXP
     : TRANSLATE_COMMAND_REGEXP;
@@ -37,8 +52,7 @@ const parseMessage = async message => {
   const match = message.content.match(regexp);
   const lang1 = match[3];
   const lang2 = match[4];
-  let text = match[5];
-  let from, to;
+  text = match[5];
 
   if (!lang2) {
     to = lang1;
@@ -68,14 +82,12 @@ const fixTranslation = translation => {
   return translation.replace(/<@! (\d+)>/g, '<@!$1>'); // fix unwanted space introduced by Google Translate in user mentions
 };
 
-const handler = async message => {
-  const { text, from, to } = await parseMessage(message);
+const translateText = async (text, from, to) => {
   let translationResult;
 
   if (text.length > charLimit) {
-    return message.channel.send(
-      `That message is too long! Please limit your text to ${charLimit} characters.`
-    );
+    const reply = `That message is too long! Please limit your text to ${charLimit} characters.`;
+    throw new RangeError(reply);
   }
 
   try {
@@ -84,31 +96,94 @@ const handler = async message => {
     logger.error('Error in translation');
     logger.error(e);
 
-    let errorTitle, errorBody;
-
     if (e instanceof GoogleApiError) {
-      errorTitle = `Google Translation Error: ${e.message}`;
-      errorBody = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
+      e.title = `Google Translation Error: ${e.message}`;
+      e.body = '```json\n' + JSON.stringify(e.details, null, 2) + '\n```';
     } else {
-      errorTitle = e.message;
+      e.title = 'Error';
+      e.body = '```\n' + e.message + '\n```';
     }
-
-    return sendError(message.channel, errorTitle, errorBody);
+    throw e;
   }
 
   translationResult.translation = fixTranslation(translationResult.translation);
 
-  return sendTranslation(
-    message,
-    translationResult.from,
-    text,
-    translationResult.to,
-    translationResult.translation
-  );
+  return translationResult;
+};
+
+const interactionHandler = async interaction => {
+  try {
+    const text = interaction.options.getString('text');
+    const from = interaction.options.getString('from');
+    const to = interaction.options.getString('to');
+
+    await interaction.deferReply();
+    const translationResult = await translateText(text, from, to);
+
+    return interaction.editReply(
+      createTranslationMessage(
+        translationResult.from,
+        translationResult.to,
+        translationResult.translation
+      )
+    );
+  } catch (e) {
+    if (e instanceof RangeError) {
+      return interaction.editReply(e.message);
+    }
+    return interaction.editReply({
+      embeds: [createErrorMessage(e.title, e.body)],
+    });
+  }
+};
+
+const handler = async message => {
+  try {
+    const { text, from, to } = await parseMessage(message);
+
+    const translationResult = await translateText(text, from, to);
+
+    const reply = createTranslationMessage(
+      translationResult.from,
+      translationResult.to,
+      translationResult.translation
+    );
+    return message.reply(reply);
+  } catch (e) {
+    if (e instanceof RangeError) {
+      return message.reply(e.message);
+    }
+    return message.reply({ embeds: [createErrorMessage(e.title, e.body)] });
+  }
+};
+
+const autocompleteLanguageOptions = query => {
+  if (!query) {
+    return ISO6391.getAllNames()
+      .map(language => {
+        return { name: language, value: language };
+      })
+      .slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
+  }
+  const list = ISO6391.getAllNames();
+  const lowercaseQuery = query.toLowerCase();
+
+  return list
+    .filter(language => language.toLowerCase().includes(lowercaseQuery))
+    .map(language => {
+      return { name: language, value: language };
+    })
+    .slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
 };
 
 module.exports = {
   name: 'translate',
   matches,
   handler,
+  interactionHandler,
+  autocomplete: {
+    to: autocompleteLanguageOptions,
+    from: autocompleteLanguageOptions,
+  },
+  builder: SLASH_COMMAND_BUILDER,
 };
