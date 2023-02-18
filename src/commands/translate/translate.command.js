@@ -26,17 +26,6 @@ const createTranslationMessage = (from, to, translation) => {
 
 const translator = new Translator();
 
-// it errors when in test env
-// not sure why but _getSupportedLanguages()
-// seems to be overriden by jest or smt
-// (it returns undefined)
-if (process.env.NODE_ENV !== 'test') {
-  translator
-    ._getSupportedLanguages()
-    .then(result => console.log(`Fetched ${result.length} supported languages`))
-    .catch(console.error);
-}
-
 const isReply = message => !!message.reference;
 
 const isFromHabla = message =>
@@ -168,9 +157,9 @@ const handler = async message => {
 };
 
 const autocompleteLanguageOptions = query => {
-  const list = translator._getCachedSupportedLanguages();
+  const list = translator.getCachedSupportedLanguages();
 
-  const _mapper = language => {
+  const mapper = language => {
     return {
       name: `${language.native || 'Supported but unknown name'} (${
         language.name || language.code
@@ -180,7 +169,7 @@ const autocompleteLanguageOptions = query => {
   };
 
   if (!query) {
-    return list.map(_mapper).slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
+    return list.map(mapper).slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
   }
   const lowercaseQuery = query.toLowerCase();
 
@@ -191,7 +180,7 @@ const autocompleteLanguageOptions = query => {
         language.native.toLowerCase().includes(lowercaseQuery) ||
         language.name.toLowerCase().includes(lowercaseQuery)
     )
-    .map(_mapper)
+    .map(mapper)
     .slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
 };
 
@@ -205,4 +194,5 @@ module.exports = {
     from: autocompleteLanguageOptions,
   },
   builder: SLASH_COMMAND_BUILDER,
+  translator,
 };

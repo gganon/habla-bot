@@ -5,6 +5,7 @@ const guildCreateHandler = require('./handlers/guild-create.handler');
 const logger = require('./util/logger');
 const interactionHandler = require('./handlers/interaction.handler');
 const registerApplicationCommands = require('./util/register-application-commands');
+const { translator } = require('./commands/translate');
 
 const client = new Discord.Client({
   intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES],
@@ -17,6 +18,8 @@ client.once('ready', () => {
     logger.info('Registering application commands on production startup');
     registerApplicationCommands();
   }
+  // fetch translator supported languages
+  translator.init();
 });
 
 const withError = (event, handler) => async (...args) => {

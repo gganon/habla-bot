@@ -12,6 +12,25 @@ class GoogleTranslator {
     this.defaultLanguage = options?.defaultLanguage || config.defaultLanguage;
     this.apiKey = config.googleTranslationApiKey;
     this._cachedSupportedLanguages = [];
+    this._fetcherInterval;
+    this._initialized = false;
+  }
+
+  async init(force) {
+    if (!force && this._initialized) {
+      throw new Error('This instance is already initialized!');
+    }
+
+    const fetcher = async () => {
+      this.getSupportedLanguages().then(result =>
+        console.log(`Fetched ${result.length} supported languages`)
+      );
+    };
+
+    await fetcher();
+
+    this._fetcherInterval = setInterval(fetcher, 24 * 60 * 60 * 1000);
+    this._initialized = true;
   }
 
   async translate(text, options) {
@@ -80,7 +99,7 @@ class GoogleTranslator {
     }; // if `language` was already an ISO-639-1 code, getCode() will return '' and return value will be defaulted to `language` itself
   }
 
-  async _getSupportedLanguages() {
+  async getSupportedLanguages() {
     try {
       const response = await axios.post(
         GOOGLE_TRANSLATION_API_BASE_URL + '/languages',
@@ -106,7 +125,7 @@ class GoogleTranslator {
     }
   }
 
-  _getCachedSupportedLanguages() {
+  getCachedSupportedLanguages() {
     return this._cachedSupportedLanguages;
   }
 
