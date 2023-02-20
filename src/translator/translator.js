@@ -23,7 +23,7 @@ class GoogleTranslator {
 
     const fetcher = async () => {
       this.getSupportedLanguages().then(result =>
-        console.log(`Fetched ${result.length} supported languages`)
+        logger.info(`Fetched ${result.length} supported languages`)
       );
     };
 
