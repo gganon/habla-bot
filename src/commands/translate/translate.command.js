@@ -1,5 +1,4 @@
 const { charLimit } = require('../../config');
-const ISO6391 = require('iso-639-1');
 const { Translator, GoogleApiError } = require('../../translator');
 const logger = require('../../util/logger');
 const { MessageEmbed } = require('discord.js');
@@ -158,21 +157,30 @@ const handler = async message => {
 };
 
 const autocompleteLanguageOptions = query => {
+  const list = translator.getCachedSupportedLanguages();
+
+  const mapper = language => {
+    return {
+      name: `${language.native || 'Supported but unknown name'} (${
+        language.name || language.code
+      })`,
+      value: language.code,
+    };
+  };
+
   if (!query) {
-    return ISO6391.getAllNames()
-      .map(language => {
-        return { name: language, value: language };
-      })
-      .slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
+    return list.map(mapper).slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
   }
-  const list = ISO6391.getAllNames();
   const lowercaseQuery = query.toLowerCase();
 
   return list
-    .filter(language => language.toLowerCase().includes(lowercaseQuery))
-    .map(language => {
-      return { name: language, value: language };
-    })
+    .filter(
+      language =>
+        language.code.toLowerCase().includes(lowercaseQuery) ||
+        language.native.toLowerCase().includes(lowercaseQuery) ||
+        language.name.toLowerCase().includes(lowercaseQuery)
+    )
+    .map(mapper)
     .slice(0, MAX_AUTOCOMPLETE_RESPOND_ENTRY);
 };
 
@@ -186,4 +194,5 @@ module.exports = {
     from: autocompleteLanguageOptions,
   },
   builder: SLASH_COMMAND_BUILDER,
+  translator,
 };
